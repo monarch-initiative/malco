@@ -25,8 +25,8 @@ prompt: |+
   ===
 
 extracted_object:
-  id: 5ce8d9dc-a796-4c6d-9659-c3f96bcfe1ea
-  label: Disease Names
+  id: f877a96f-99bf-496d-b61a-71f5cff602ae
+  label: PMID_4045952_IIIPMID_4045952_III.11-prompt.txt
   terms:
     - OMIM:301310
     - OMIM:300751
@@ -77,8 +77,8 @@ prompt: |+
   ===
 
 extracted_object:
-  id: 857ac8d9-7f04-48f3-a6a1-a44e9d4ca277
-  label: differential diagnoses
+  id: 3bdc3ff0-beaf-4c30-8ed3-ffc2dcb17d22
+  label: PMID_4045952_IVPMID_4045952_IV.55-prompt.txt
   terms:
     - OMIM:301310
     - OMIM:606002
@@ -119,8 +119,8 @@ prompt: |+
   ===
 
 extracted_object:
-  id: dc44d025-ae4d-40b3-ad83-e384955e4907
-  label: Disease names
+  id: 0548da4d-5151-4cfc-8c2d-62ca163443f4
+  label: PMID_4045952_IVPMID_4045952_IV.1212-prompt.txt
   terms:
     - OMIM:301310
     - OMIM:300322
@@ -171,8 +171,8 @@ prompt: |+
   ===
 
 extracted_object:
-  id: d4444164-eefc-4c77-a072-50e90ae13d30
-  label: Differential Diagnosis List
+  id: 60d74c77-b2ab-4915-b55b-67dfedd82f6d
+  label: PMID_4045952_IVPMID_4045952_IV.1313-prompt.txt
   terms:
     - OMIM:208900
     - OMIM:606829
