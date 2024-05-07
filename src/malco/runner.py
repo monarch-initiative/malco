@@ -3,8 +3,8 @@ from pathlib import Path
 
 from pheval.runners.runner import PhEvalRunner
 
-from pheval_template.post_process.post_process import post_process
-from pheval_template.run.run import run
+from malco.post_process.post_process import post_process
+from malco.run.run import run
 
 
 @dataclass

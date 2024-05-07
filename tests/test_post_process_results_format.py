@@ -3,7 +3,7 @@ import unittest
 from pheval.post_processing.post_processing import PhEvalGeneResult
 from pheval.utils.phenopacket_utils import GeneIdentifierUpdater, create_hgnc_dict
 
-from pheval_template.post_process.post_process_results_format import ConvertToPhEvalResult
+from malco.post_process.post_process_results_format import ConvertToPhEvalResult
 
 result = [
     {"gene_symbol": "GCDH", "score": 0.6415226418151174},
