@@ -8,7 +8,7 @@ from malco.run.run import run
 
 
 @dataclass
-class TemplatePhEvalRunner(PhEvalRunner):
+class MalcoRunner(PhEvalRunner):
     input_dir: Path
     testdata_dir: Path
     tmp_dir: Path
