@@ -1,0 +1,193 @@
+---
+input_text: |-
+  1. OMIM:300751 - X-linked sideroblastic anemia with ataxia
+  2. OMIM:301310 - X-linked sideroblastic anemia
+  3. OMIM:614286 - Mitochondrial myopathy and sideroblastic anemia 1
+  4. OMIM:300589 - Pearson marrow-pancreas syndrome
+  5. OMIM:600857 - Neurodegeneration with brain iron accumulation 1
+raw_completion_output: |-
+  terms: X-linked sideroblastic anemia with ataxia; X-linked sideroblastic anemia; Mitochondrial myopathy and sideroblastic anemia 1; Pearson marrow-pancreas syndrome; Neurodegeneration with brain iron accumulation 1
+  label: Disease Names
+prompt: |+
+  From the text below, extract the following entities in the following format:
+
+  terms: <A semicolon-separated list of any disease names.>
+  label: <The label (name) of the named thing>
+
+
+  Text:
+  1. OMIM:300751 - X-linked sideroblastic anemia with ataxia
+  2. OMIM:301310 - X-linked sideroblastic anemia
+  3. OMIM:614286 - Mitochondrial myopathy and sideroblastic anemia 1
+  4. OMIM:300589 - Pearson marrow-pancreas syndrome
+  5. OMIM:600857 - Neurodegeneration with brain iron accumulation 1
+
+  ===
+
+extracted_object:
+  id: f877a96f-99bf-496d-b61a-71f5cff602ae
+  label: PMID_4045952_IIIPMID_4045952_III.11-prompt.txt
+  terms:
+    - OMIM:301310
+    - OMIM:300751
+    - Mitochondrial myopathy and sideroblastic anemia 1
+    - OMIM:557000
+    - OMIM:234200
+named_entities:
+  - id: OMIM:301310
+    label: X-linked sideroblastic anemia with ataxia
+  - id: OMIM:300751
+    label: X-linked sideroblastic anemia
+  - id: OMIM:557000
+    label: Pearson marrow-pancreas syndrome
+  - id: OMIM:234200
+    label: Neurodegeneration with brain iron accumulation 1
+---
+input_text: |-
+  Based on the clinical features presented in the case, here is the list of differential diagnoses ranked by probability:
+
+  1. OMIM:300751 - X-linked Sideroblastic Anemia with Ataxia
+  2. OMIM:300115 - Spinocerebellar Ataxia, Autosomal Recessive 1 (SCAR1)
+  3. OMIM:301310 - Pearlman Syndrome
+  4. OMIM:312750 - Friedreich Ataxia with Retained Reflexes
+  5. OMIM:500011 - Congenital Sideroblastic Anemia B
+
+  Given the combination of neurological symptoms and specific anemia findings, X-linked Sideroblastic Anemia with Ataxia appears to be the most probable diagnosis.
+raw_completion_output: |-
+  terms: X-linked Sideroblastic Anemia with Ataxia; Spinocerebellar Ataxia, Autosomal Recessive 1; Pearlman Syndrome; Friedreich Ataxia with Retained Reflexes; Congenital Sideroblastic Anemia B
+  label: differential diagnoses
+prompt: |+
+  From the text below, extract the following entities in the following format:
+
+  terms: <A semicolon-separated list of any disease names.>
+  label: <The label (name) of the named thing>
+
+
+  Text:
+  Based on the clinical features presented in the case, here is the list of differential diagnoses ranked by probability:
+
+  1. OMIM:300751 - X-linked Sideroblastic Anemia with Ataxia
+  2. OMIM:300115 - Spinocerebellar Ataxia, Autosomal Recessive 1 (SCAR1)
+  3. OMIM:301310 - Pearlman Syndrome
+  4. OMIM:312750 - Friedreich Ataxia with Retained Reflexes
+  5. OMIM:500011 - Congenital Sideroblastic Anemia B
+
+  Given the combination of neurological symptoms and specific anemia findings, X-linked Sideroblastic Anemia with Ataxia appears to be the most probable diagnosis.
+
+  ===
+
+extracted_object:
+  id: 3bdc3ff0-beaf-4c30-8ed3-ffc2dcb17d22
+  label: PMID_4045952_IVPMID_4045952_IV.55-prompt.txt
+  terms:
+    - OMIM:301310
+    - OMIM:606002
+    - Pearlman Syndrome
+    - OMIM:606829
+    - Congenital Sideroblastic Anemia B
+named_entities:
+  - id: OMIM:301310
+    label: X-linked Sideroblastic Anemia with Ataxia
+  - id: OMIM:606002
+    label: Spinocerebellar Ataxia, Autosomal Recessive 1
+  - id: OMIM:606829
+    label: Friedreich Ataxia with Retained Reflexes
+---
+input_text: |-
+  1. OMIM:300115 - X-linked sideroblastic anemia with ataxia
+  2. OMIM:312750 - Lesch-Nyhan syndrome
+  3. OMIM:104000 - Ataxia-Telangiectasia
+  4. OMIM:606159 - Mitochondrial complex III deficiency, nuclear type 4
+  5. OMIM:210900 - Biotinidase deficiency
+raw_completion_output: |-
+  terms: X-linked sideroblastic anemia with ataxia; Lesch-Nyhan syndrome; Ataxia-Telangiectasia; Mitochondrial complex III deficiency, nuclear type 4; Biotinidase deficiency
+  label: Disease names
+prompt: |+
+  From the text below, extract the following entities in the following format:
+
+  terms: <A semicolon-separated list of any disease names.>
+  label: <The label (name) of the named thing>
+
+
+  Text:
+  1. OMIM:300115 - X-linked sideroblastic anemia with ataxia
+  2. OMIM:312750 - Lesch-Nyhan syndrome
+  3. OMIM:104000 - Ataxia-Telangiectasia
+  4. OMIM:606159 - Mitochondrial complex III deficiency, nuclear type 4
+  5. OMIM:210900 - Biotinidase deficiency
+
+  ===
+
+extracted_object:
+  id: 0548da4d-5151-4cfc-8c2d-62ca163443f4
+  label: PMID_4045952_IVPMID_4045952_IV.1212-prompt.txt
+  terms:
+    - OMIM:301310
+    - OMIM:300322
+    - OMIM:208900
+    - OMIM:615159
+    - OMIM:253260
+named_entities:
+  - id: OMIM:301310
+    label: X-linked sideroblastic anemia with ataxia
+  - id: OMIM:300322
+    label: Lesch-Nyhan syndrome
+  - id: OMIM:208900
+    label: Ataxia-Telangiectasia
+  - id: OMIM:615159
+    label: Mitochondrial complex III deficiency, nuclear type 4
+  - id: OMIM:253260
+    label: Biotinidase deficiency
+---
+input_text: |-
+  Here is my differential diagnosis list based on the presented symptoms:
+
+  1. OMIM:605355 - Ataxia-Telangiectasia-like Disorder
+  2. OMIM:208920 - Friedreich Ataxia
+  3. OMIM:271930 - Ataxia with Vitamin E Deficiency
+  4. OMIM:234200 - Ataxia, Early-Onset, with Oculomotor Apraxia and Hypoalbuminemia (AOA1)
+  5. OMIM:606002 - Spinocerebellar Ataxia, Autosomal Recessive 1
+  6. OMIM:607529 - Infantile-Onset Spinocerebellar Ataxia
+raw_completion_output: |-
+  terms: Ataxia-Telangiectasia-like Disorder; Friedreich Ataxia; Ataxia with Vitamin E Deficiency; Ataxia, Early-Onset, with Oculomotor Apraxia and Hypoalbuminemia; Spinocerebellar Ataxia, Autosomal Recessive 1; Infantile-Onset Spinocerebellar Ataxia
+  label: Differential Diagnosis List
+prompt: |+
+  From the text below, extract the following entities in the following format:
+
+  terms: <A semicolon-separated list of any disease names.>
+  label: <The label (name) of the named thing>
+
+
+  Text:
+  Here is my differential diagnosis list based on the presented symptoms:
+
+  1. OMIM:605355 - Ataxia-Telangiectasia-like Disorder
+  2. OMIM:208920 - Friedreich Ataxia
+  3. OMIM:271930 - Ataxia with Vitamin E Deficiency
+  4. OMIM:234200 - Ataxia, Early-Onset, with Oculomotor Apraxia and Hypoalbuminemia (AOA1)
+  5. OMIM:606002 - Spinocerebellar Ataxia, Autosomal Recessive 1
+  6. OMIM:607529 - Infantile-Onset Spinocerebellar Ataxia
+
+  ===
+
+extracted_object:
+  id: 60d74c77-b2ab-4915-b55b-67dfedd82f6d
+  label: PMID_4045952_IVPMID_4045952_IV.1313-prompt.txt
+  terms:
+    - OMIM:208900
+    - OMIM:606829
+    - OMIM:277460
+    - OMIM:208920
+    - OMIM:606002
+    - Infantile-Onset Spinocerebellar Ataxia
+named_entities:
+  - id: OMIM:208900
+    label: Ataxia-Telangiectasia-like Disorder
+  - id: OMIM:606829
+    label: Friedreich Ataxia
+  - id: OMIM:277460
+    label: Ataxia with Vitamin E Deficiency
+  - id: OMIM:208920
+    label: Ataxia, Early-Onset, with Oculomotor Apraxia and Hypoalbuminemia
+  - id: OMIM:606002
+    label: Spinocerebellar Ataxia, Autosomal Recessive 1
