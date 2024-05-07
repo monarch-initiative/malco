@@ -2,7 +2,7 @@
 name = "malco"
 version = "0.0.1"
 description = "Multilingual Analysis of LLMs for Clinical Observations"
-authors = [""]
+authors = ["Harry Caufield <jhc@lbl.gov>", "Justin Reese <justaddcoffee@gmail.com>", "Leonardo Chimirri <leonardo.chimirri@bih-charite.de>", "Enock Niyonkuru <enock.niyonkuru@jax.org>"]
 readme = "README.md"
 packages = [{include = "pheval_template", from = "src"}]
 
@@ -12,7 +12,7 @@ pheval = "^0.3.2"
 
 
 [tool.poetry.plugins."pheval.plugins"]
-template = "pheval_template.runner:TemplatePhEvalRunner"
+template = "pheval_template.runner:MalcoRunner"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
