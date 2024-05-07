@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "malco"
+version = "0.0.1"
+description = "Multilingual Analysis of LLMs for Clinical Observations"
+authors = [""]
+readme = "README.md"
+packages = [{include = "pheval_template", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pheval = "^0.3.2"
+
+
+[tool.poetry.plugins."pheval.plugins"]
+template = "pheval_template.runner:TemplatePhEvalRunner"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+pylint = "^2.15.6"
+pycodestyle = "^2.10.0"
+coverage = "^6.5.0"
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src"
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310"]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 100
+include_trailing_comma = true
+reverse_relative = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
