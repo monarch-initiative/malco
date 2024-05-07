@@ -6,6 +6,8 @@ from pheval.runners.runner import PhEvalRunner
 from malco.post_process.post_process import post_process
 from malco.run.run import run
 
+import os
+
 
 @dataclass
 class MalcoRunner(PhEvalRunner):
@@ -20,7 +22,9 @@ class MalcoRunner(PhEvalRunner):
         """
         Pre-process any data and inputs necessary to run the tool.
         """
-        print("preparing")
+        print("preparing...\n")
+        os.system(f"java -jar {self.input_dir}/phenopacket2prompt.jar download")
+        os.system(f"java -jar {self.input_dir}/phenopacket2prompt.jar batch -d data")
 
     def run(self):
         """
