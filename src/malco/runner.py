@@ -24,7 +24,7 @@ class MalcoRunner(PhEvalRunner):
         """
         print("preparing...\n")
         os.system(f"java -jar {self.input_dir}/phenopacket2prompt.jar download")
-        os.system(f"java -jar {self.input_dir}/phenopacket2prompt.jar batch -d data")
+        os.system(f"java -jar {self.input_dir}/phenopacket2prompt.jar batch -d phenopacket-store")
 
     def run(self):
         """

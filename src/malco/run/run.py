@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from malco.run.run_tool import run_tool
+from ontogpt import run_multilingual_analysis
 
 
 def run(testdata_dir: Path, raw_results_dir: Path) -> None:
