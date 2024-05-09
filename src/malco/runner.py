@@ -47,7 +47,7 @@ class MalcoRunner(PhEvalRunner):
         """
         Run the tool to produce the raw output.
         """
-        print("running with fake predictor")
+        print("running with predictor")
         run(self.testdata_dir, self.raw_results_dir)
 
     def post_process(self):

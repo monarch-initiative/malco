@@ -21,44 +21,32 @@ def read_raw_result_yaml(raw_result_path: Path) -> List[dict]:
         dict: Contents of the raw result file.
     """
     with open(raw_result_path, 'r') as raw_result:
-        raw_result_data = yaml.safe_load(raw_result)
-    return raw_result_data
+        return list(yaml.safe_load_all(raw_result))  # Load and convert to list
 
 
 def create_standardised_results(raw_results_dir: Path, output_dir: Path,
-                                output_file_name: str = "results.tsv") -> None:
-    """
-    (via enock.Niyonkuru@jax.org)
-    Load a YAML file, create a DataFrame with columns 'label', 'term', and 'score', and
-    save it to a TSV file.
+                                output_file_name: str = "results.tsv") -> pd.DataFrame:
+    data = []
+    for raw_result_path in raw_results_dir.iterdir():
+        if raw_result_path.is_file():
+            all_results = read_raw_result_yaml(raw_result_path)
 
-    Parameters:
-    yaml_file_path (str): The path to the YAML file.
-    output_file_path (str): The path where the TSV file will be saved.
+            for this_result in all_results:
+                extracted_object = this_result.get("extracted_object")
+                if extracted_object:
+                    label = extracted_object.get('label')
+                    terms = extracted_object.get('terms')
+                    if terms:
+                        num_terms = len(terms)
+                        score = [1 / (i + 1) for i in range(num_terms)]  # score is reciprocal rank
+                        for term, scr in zip(terms, score):
+                            data.append({'label': label, 'term': term, 'score': scr})
 
-    Returns:
-    pd.DataFrame: The DataFrame created from the YAML data.
-    """
-    for raw_result_path in all_files(raw_results_dir):
+    # Create DataFrame
+    df = pd.DataFrame(data)
 
-        raw_result = read_raw_result_yaml(raw_result_path)
+    # Save DataFrame to TSV
+    output_path = os.path.join(output_dir, output_file_name)
+    df.to_csv(output_path, sep='\t', index=False)
 
-        extracted_object = raw_result.get("extracted_object")
-        data = []
-        if extracted_object:
-            label = extracted_object.get('label')
-            terms = extracted_object.get('terms')
-            if terms:
-                num_terms = len(terms)
-                score = [1 / (i + 1) for i in range(num_terms)]
-                for term, scr in zip(terms, score):
-                    data.append({'label': label, 'term': term, 'score': scr})
-
-        # Create DataFrame
-        df = pd.DataFrame(data)
-
-        # Save DataFrame to TSV
-        df.to_csv(os.path.join(output_dir, output_file_name), sep='\t', index=False)
-
-        return df
-
+    return df

@@ -3038,7 +3038,7 @@ web = ["Jinja2 (>=3.1.2)", "fastapi (>=0.88.0)", "uvicorn (>=0.20.0)"]
 type = "git"
 url = "https://github.com/monarch-initiative/ontogpt.git"
 reference = "multilanguage_gpt"
-resolved_reference = "21813e4ec81904995d3a36dbf903cacf42ced35d"
+resolved_reference = "f1c81e4eee44d8a89ccbf86caab532ceb77aaf6b"
 
 [[package]]
 name = "ontoportal-client"

@@ -27,6 +27,6 @@ def run(testdata_dir: Path, raw_results_dir: Path) -> None:
     )
     """
     os.system(
-        f"ontogpt run-multilingual-analysis --output={mydir}/outputdir/grounded_en/results.yaml --output-format=yaml {mydir}/prompts/et/ {mydir}outputdir/"
+        f"ontogpt run-multilingual-analysis --output={mydir}/outputdir/raw_results/results.yaml {mydir}/prompts/et/ {mydir}/outputdir/"
     )
     # run_tool(phenopacket_dir=testdata_dir.joinpath("phenopackets"), output_dir=raw_results_dir)
