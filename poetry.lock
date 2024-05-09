@@ -380,17 +380,17 @@ files = [
 
 [[package]]
 name = "boto3"
-version = "1.34.100"
+version = "1.34.101"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "boto3-1.34.100-py3-none-any.whl", hash = "sha256:bbe2bb0dfcd92380da2a2fa2c2f586ba06c118b796380b2d0f3d0ebd103ec28d"},
-    {file = "boto3-1.34.100.tar.gz", hash = "sha256:016f6d66900bb1a835dea2063f1e91fc7057dbf7fb7df8add0706f0da9492631"},
+    {file = "boto3-1.34.101-py3-none-any.whl", hash = "sha256:79b93f3370ea96ce838042bc2eac0c996aee204b01e7e6452eb77abcbe697d6a"},
+    {file = "boto3-1.34.101.tar.gz", hash = "sha256:1d854b5880e185db546b4c759fcb664bf3326275064d2b44229cc217e8be9d7e"},
 ]
 
 [package.dependencies]
-botocore = ">=1.34.100,<1.35.0"
+botocore = ">=1.34.101,<1.35.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.10.0,<0.11.0"
 
@@ -399,13 +399,13 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.34.100"
+version = "1.34.101"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore-1.34.100-py3-none-any.whl", hash = "sha256:ee516fb9e9e906d311f2a9921afaf79c594db239a5b4b626e89e6960401aad0b"},
-    {file = "botocore-1.34.100.tar.gz", hash = "sha256:513bea60c6531af8e1ae1fdb2947e3ef99712f39c58f4656b5efef9cb6f75a13"},
+    {file = "botocore-1.34.101-py3-none-any.whl", hash = "sha256:f145e8b4b8fc9968f5eb695bdc2fcc8e675df7fbc3c56102dc1f5471be6baf35"},
+    {file = "botocore-1.34.101.tar.gz", hash = "sha256:01f3802d25558dd7945d83884bf6885e2f84e1ff27f90b5f09614966fe18c18f"},
 ]
 
 [package.dependencies]
@@ -3038,7 +3038,7 @@ web = ["Jinja2 (>=3.1.2)", "fastapi (>=0.88.0)", "uvicorn (>=0.20.0)"]
 type = "git"
 url = "https://github.com/monarch-initiative/ontogpt.git"
 reference = "multilanguage_gpt"
-resolved_reference = "4613da4f2c6c7c4e33c0c29496910ba16a2afbd6"
+resolved_reference = "21813e4ec81904995d3a36dbf903cacf42ced35d"
 
 [[package]]
 name = "ontoportal-client"
@@ -3061,13 +3061,13 @@ tests = ["coverage", "pytest", "unittest-templates"]
 
 [[package]]
 name = "openai"
-version = "1.26.0"
+version = "1.27.0"
 description = "The official Python library for the openai API"
 optional = false
 python-versions = ">=3.7.1"
 files = [
-    {file = "openai-1.26.0-py3-none-any.whl", hash = "sha256:884ced523fb0225780f8b0e0ed6f7e014049c32d049a41ad0ac962869f1055d1"},
-    {file = "openai-1.26.0.tar.gz", hash = "sha256:642e857b60855702ee6ff665e8fa80946164f77b92e58fd24e01b545685b8405"},
+    {file = "openai-1.27.0-py3-none-any.whl", hash = "sha256:1183346fae6e63cb3a9134e397c0067690dc9d94ceb36eb0eb2c1bb9a1542aca"},
+    {file = "openai-1.27.0.tar.gz", hash = "sha256:498adc80ba81a95324afdfd11a71fa43a37e1d94a5ca5f4542e52fe9568d995b"},
 ]
 
 [package.dependencies]
@@ -5181,13 +5181,13 @@ files = [
 
 [[package]]
 name = "tomlkit"
-version = "0.12.4"
+version = "0.12.5"
 description = "Style preserving TOML library"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "tomlkit-0.12.4-py3-none-any.whl", hash = "sha256:5cd82d48a3dd89dee1f9d64420aa20ae65cfbd00668d6f094d7578a78efbb77b"},
-    {file = "tomlkit-0.12.4.tar.gz", hash = "sha256:7ca1cfc12232806517a8515047ba66a19369e71edf2439d0f5824f91032b6cc3"},
+    {file = "tomlkit-0.12.5-py3-none-any.whl", hash = "sha256:af914f5a9c59ed9d0762c7b64d3b5d5df007448eb9cd2edc8a46b1eafead172f"},
+    {file = "tomlkit-0.12.5.tar.gz", hash = "sha256:eef34fba39834d4d6b73c9ba7f3e4d1c417a4e56f89a7e96e090dd0d24b8fb3c"},
 ]
 
 [[package]]
