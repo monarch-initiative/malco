@@ -48,14 +48,14 @@ class MalcoRunner(PhEvalRunner):
         Run the tool to produce the raw output.
         """
         print("running with fake predictor")
-        # run(self.testdata_dir, self.raw_results_dir)
+        run(self.testdata_dir, self.raw_results_dir)
 
     def post_process(self):
         """
         Post-process the raw output into PhEval standardised TSV output.
         """
         print("post processing results to PhEval standardised TSV output.")
-        # post_process(raw_results_dir=self.raw_results_dir, output_dir=self.output_dir)
+        post_process(raw_results_dir=self.raw_results_dir, output_dir=self.output_dir)
 
     def _download_phenopackets(self, phenopacket_zip_url, phenopacket_dir):
         # Ensure the directory for storing the phenopackets exists
