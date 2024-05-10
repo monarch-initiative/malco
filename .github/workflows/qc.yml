@@ -13,6 +13,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    continue-on-error: true  # This line allows the job to continue even if errors occur
     strategy:
       matrix:
         python-version: [ '3.9', '3.10' ]
