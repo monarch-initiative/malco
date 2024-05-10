@@ -85,13 +85,14 @@ class MalcoRunner(PhEvalRunner):
         # Read in results TSVs from self.output_dir that match glob results*tsv
         results_data = []
         results_files = []
-        for filename in os.listdir(self.output_dir):
-            if filename.startswith("result") and filename.endswith(".tsv"):
-                file_path = os.path.join(self.output_dir, filename)
-                df = pd.read_csv(file_path, sep='\t')
-                results_data.append(df)
-                results_files.append(filename)
-
+        for subdir, dirs, files in os.walk(self.output_dir):
+            for filename in files:
+                if filename.startswith("result") and filename.endswith(".tsv"):
+                    file_path = os.path.join(subdir, filename)
+                    df = pd.read_csv(file_path, sep='\t')
+                    results_data.append(df)
+                    # Append both the subdirectory relative to output_dir and the filename
+                    results_files.append(os.path.relpath(file_path, self.output_dir))
         # Read in correct answers from prompt_dir
         answers_path = os.path.join(os.getcwd(), prompt_dir, correct_answer_file)
         answers = pd.read_csv(answers_path, sep='\t', header=None,
