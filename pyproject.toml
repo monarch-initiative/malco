@@ -20,8 +20,7 @@ pytest = "^7.1.2"
 pylint = "^2.15.6"
 pycodestyle = "^2.10.0"
 coverage = "^6.5.0"
-# https://github.com/monarch-initiative/ontogpt.git branch multilanguage_gpt
-ontogpt = {git = "https://github.com/monarch-initiative/ontogpt.git", branch = "multilanguage_gpt"}
+ontogpt = {git = "https://github.com/monarch-initiative/ontogpt.git", branch = "main"}
 
 [tool.poetry.group.dev.dependencies]
 tox = "^4.15.0"
