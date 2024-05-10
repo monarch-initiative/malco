@@ -42,16 +42,16 @@ class MalcoRunner(PhEvalRunner):
             print(f"{phenopacket_store_path} doesn't exist, downloading phenopackets...")
             self._download_phenopackets(phenopacket_zip_url, phenopacket_dir)
 
-        # os.system(f"java -jar {self.input_dir}/phenopacket2prompt.jar download")
-        # os.system(
-        #     f"java -jar {self.input_dir}/phenopacket2prompt.jar batch -d {phenopacket_store_path}")
+        os.system(f"java -jar {self.input_dir}/phenopacket2prompt.jar download")
+        os.system(
+            f"java -jar {self.input_dir}/phenopacket2prompt.jar batch -d {phenopacket_store_path}")
 
     def run(self):
         """
         Run the tool to produce the raw output.
         """
         print("running with predictor")
-        # run(self.testdata_dir, self.raw_results_dir)
+        run(self.testdata_dir, self.raw_results_dir)
 
     def post_process(self, make_plot=True):
         """
