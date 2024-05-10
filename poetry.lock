@@ -3064,8 +3064,8 @@ web = ["Jinja2 (>=3.1.2)", "fastapi (>=0.88.0)", "uvicorn (>=0.20.0)"]
 [package.source]
 type = "git"
 url = "https://github.com/monarch-initiative/ontogpt.git"
-reference = "multilanguage_gpt"
-resolved_reference = "4613da4f2c6c7c4e33c0c29496910ba16a2afbd6"
+reference = "main"
+resolved_reference = "3f755df0398afc44c60a301b3a3d903438d7cccf"
 
 [[package]]
 name = "ontoportal-client"
@@ -5771,4 +5771,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "4c8d2fd260442ce45507714fcab1917d8c606349b5860edb99f1cab1208790bc"
+content-hash = "076dee9f738378d4aae0d0985054f15ade28c227b6b75c31d91847e3c70c390b"
