@@ -11,4 +11,10 @@ def post_process(raw_results_dir: Path, output_dir: Path) -> None:
         raw_results_dir (Path): Path to the raw results directory.
         output_dir (Path): Path to the output directory.
     """
-    create_standardised_results(raw_results_dir=raw_results_dir, output_dir=output_dir)
+    # For testing
+    # langs = ["et", "ep"]
+    langs = ["en", "es"]
+    for lang in langs:
+        raw_results_lang = raw_results_dir / lang
+        output_lang = output_dir / lang
+        create_standardised_results(raw_results_dir=raw_results_lang, output_dir=output_lang)
