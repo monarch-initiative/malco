@@ -5,3 +5,4 @@ data/*
 prompts/*
 inputdir
 outputdir
+.openai_cache.db
