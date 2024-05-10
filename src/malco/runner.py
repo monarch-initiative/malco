@@ -42,16 +42,16 @@ class MalcoRunner(PhEvalRunner):
             print(f"{phenopacket_store_path} doesn't exist, downloading phenopackets...")
             self._download_phenopackets(phenopacket_zip_url, phenopacket_dir)
 
-        os.system(f"java -jar {self.input_dir}/phenopacket2prompt.jar download")
-        os.system(
-            f"java -jar {self.input_dir}/phenopacket2prompt.jar batch -d {phenopacket_store_path}")
+        # os.system(f"java -jar {self.input_dir}/phenopacket2prompt.jar download")
+        # os.system(
+        #     f"java -jar {self.input_dir}/phenopacket2prompt.jar batch -d {phenopacket_store_path}")
 
     def run(self):
         """
         Run the tool to produce the raw output.
         """
         print("running with predictor")
-        run(self.testdata_dir, self.raw_results_dir)
+        # run(self.testdata_dir, self.raw_results_dir)
 
     def post_process(self, make_plot=True):
         """
@@ -108,6 +108,10 @@ class MalcoRunner(PhEvalRunner):
             df['rank'] = df.groupby('label')['score'].rank(ascending=False,
                                                            method='first')
             df['correct_term'] = df['label'].map(label_to_correct_term)
+            # df['term'] is sometimes a Mondo ID
+            # df['correct_term'] is always an OMIM
+            # TODO: call OAK and get OMIM IDs for df['term'] and see if df['correct_term'] is one of them
+            # if so, df["is_correct"] = True
             df['is_correct'] = (df['term'] == df['correct_term'])
 
             # Calculate reciprocal rank
