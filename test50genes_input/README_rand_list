@@ -1,0 +1,5 @@
+From phenopacket-store directory I ran:
+
+ls ./*/ |sort -R |tail -100 > rand_ppkt_list.txt
+
+then from here (after path adaptation) run cp_ppkt.sh to copy a random set of phenopackets in a, here empy, pheonpacket-store folder.
