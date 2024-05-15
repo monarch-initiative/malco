@@ -112,12 +112,9 @@ class MalcoRunner(PhEvalRunner):
             df["rank"] = df.groupby("label")["score"].rank(ascending=False, method="first")
             label_4_non_eng = df["label"].str.replace("json_es-prompt", "json_en-prompt")
             df["correct_term"] = label_4_non_eng.map(label_to_correct_term)
-            # df['term'] is sometimes a Mondo ID
+            # df['term'] is I think always a Mondo ID
             # df['correct_term'] is always an OMIM
-            # TODO: call OAK and get OMIM IDs for df['term'] and see if df['correct_term'] is one of them
-            # if so, df["is_correct"] = True
-            df["is_correct"] = df["term"] == df["correct_term"]
-            # match_score = score_grounded_result("MONDO:0008029", "OMIM:158810")
+            # call OAK and get OMIM IDs for df['term'] and see if df['correct_term'] is one of them
             df['is_correct'] = df.apply(
                 lambda row: score_grounded_result(row['term'], row['correct_term']) > 0,
                 axis=1)
