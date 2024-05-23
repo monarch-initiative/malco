@@ -141,7 +141,7 @@ class ConvertToPhEvalResult:
             )
         return pheval_result
 
-
+'''
 def create_standardised_results(raw_results_dir: Path, output_dir: Path) -> None:
     """
     Create PhEval gene tsv output from raw results.
@@ -164,3 +164,4 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path) -> None
             output_dir=output_dir,
             tool_result_path=raw_result_path,
         )
+'''

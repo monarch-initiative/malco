@@ -5,8 +5,8 @@ import os
 
 # from ontogpt.cli import run_multilingual_analysis
 
-
-def run(testdata_dir: Path, raw_results_dir: Path) -> None:
+def run(testdata_dir: Path, raw_results_dir: Path, output_dir: Path, 
+        langs: tuple) -> None:
     """
     Run the tool to obtain the raw results.
 
@@ -15,11 +15,15 @@ def run(testdata_dir: Path, raw_results_dir: Path) -> None:
         raw_results_dir: Path to the raw results directory.
     """
     mydir = os.getcwd()
-    langs = ["en", "es"]
-    # For testing
-    # langs = ["et", "ep"]
+    
     for lang in langs:
+        print(lang)
+        '''
         os.system(
             f"ontogpt -v run-multilingual-analysis --output={mydir}/outputdir/raw_results/{lang}/results.yaml {mydir}/prompts/{lang}/ {mydir}/outputdir/"
+        ) 
+        '''
+        os.system(
+            f"ontogpt -v run-multilingual-analysis --output={output_dir}/raw_results/{lang}/results.yaml {mydir}/prompts/{lang}/ {output_dir}/"
         )
-    # run_tool(phenopacket_dir=testdata_dir.joinpath("phenopackets"), output_dir=raw_results_dir)
+        # run_tool(phenopacket_dir=testdata_dir.joinpath("phenopackets"), output_dir=raw_results_dir)
