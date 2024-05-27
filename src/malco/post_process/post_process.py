@@ -12,14 +12,11 @@ def post_process(raw_results_dir: Path, output_dir: Path, langs: tuple) -> None:
         output_dir (Path): Path to the output directory.
     """
     
-#    langs = ["en", "es"]
     for lang in langs:
         raw_results_lang = raw_results_dir / lang
-        print(raw_results_lang)
-        if not os.path.exists(raw_results_lang):
-            os.makedirs(raw_results_lang) 
         output_lang = output_dir / lang
-        print(output_lang)
-        if not os.path.exists(output_lang):
-            os.makedirs(output_lang)
-        create_standardised_results(raw_results_dir=raw_results_lang, output_dir=output_lang)
+        raw_results_lang.mkdir(exist_ok=True)
+        output_lang.mkdir(exist_ok=True)
+        
+        create_standardised_results(raw_results_dir=raw_results_lang, 
+                                    output_dir=output_lang, output_file_name = "results.tsv")

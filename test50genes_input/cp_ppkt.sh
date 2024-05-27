@@ -2,5 +2,5 @@
 filenames=rand_ppkt_list.txt
 for file in $(cat $filenames)
 do
-    cp /home/leonardo/Desktop/programs/bih/code/OntoGPT/multilingualGPT/malco/inputdir/phenopacket-store/*/$file ./phenopacket-store/
+    cp /Users/leonardo/data/phenopacket-store/*/$file ./phenopacket-store/
 done;

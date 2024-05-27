@@ -81,9 +81,12 @@ def score_grounded_result(prediction: str, ground_truth: str) -> float:
         # prediction is a MONDO that directly maps to a correct OMIM
         return FULL_SCORE
     mondo = mondo_adapter()
+    #TODO add a "cache", e.g. a dictionary saved somewhere as json
+    # Thus things that have already been looked up are not run again, since this step is slow
     for mondo_descendant in mondo.descendants([prediction], predicates=[IS_A], reflexive=True):
         if ground_truth in omim_mappings(mondo_descendant):
             # prediction is a MONDO that maps to a correct OMIM via a descendant
+            #TODO see todo above, at this point update above cache/dictionary
             return PARTIAL_SCORE
     return 0.0
 

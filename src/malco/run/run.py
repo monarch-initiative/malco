@@ -1,8 +1,6 @@
 from pathlib import Path
-
 from malco.run.run_tool import run_tool
 import os
-
 # from ontogpt.cli import run_multilingual_analysis
 
 def run(testdata_dir: Path, raw_results_dir: Path, output_dir: Path, 
@@ -17,12 +15,6 @@ def run(testdata_dir: Path, raw_results_dir: Path, output_dir: Path,
     mydir = os.getcwd()
     
     for lang in langs:
-        print(lang)
-        '''
-        os.system(
-            f"ontogpt -v run-multilingual-analysis --output={mydir}/outputdir/raw_results/{lang}/results.yaml {mydir}/prompts/{lang}/ {mydir}/outputdir/"
-        ) 
-        '''
         os.system(
             f"ontogpt -v run-multilingual-analysis --output={output_dir}/raw_results/{lang}/results.yaml {mydir}/prompts/{lang}/ {output_dir}/"
         )

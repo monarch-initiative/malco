@@ -25,7 +25,7 @@ def read_raw_result_yaml(raw_result_path: Path) -> List[dict]:
 
 
 def create_standardised_results(raw_results_dir: Path, output_dir: Path,
-                                output_file_name: str = "results.tsv") -> pd.DataFrame:
+                                output_file_name: str) -> pd.DataFrame:
     data = []
     for raw_result_path in raw_results_dir.iterdir():
         if raw_result_path.is_file():
@@ -46,7 +46,7 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path,
     df = pd.DataFrame(data)
 
     # Save DataFrame to TSV
-    output_path = os.path.join(output_dir, output_file_name)
+    output_path = output_dir / output_file_name
     df.to_csv(output_path, sep='\t', index=False)
 
     return df

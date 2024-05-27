@@ -1,10 +1,15 @@
 import os 
+import csv
+from pathlib import Path
 import pandas as pd
+import pickle as pkl
 from malco.post_process.mondo_score_utils import score_grounded_result
 
 
-def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> None:
-    # Read in results TSVs from self.output_dir that match glob results*tsv --> TODO Leo: make more robust, had other results*tsv files from previous testing
+def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
+    # Read in results TSVs from self.output_dir that match glob results*tsv 
+    #TODO Leo: make more robust, had other results*tsv files from previous testing
+    # Proposal, go for exact file name match defined somewhere as global/static/immutable 
     results_data = []
     results_files = []
     for subdir, dirs, files in os.walk(output_dir):
@@ -32,7 +37,7 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> None:
         df["correct_term"] = label_4_non_eng.map(label_to_correct_term)
 
         # df['term'] is Mondo or OMIM ID, or even disease label
-        # df['correct_term'] is always an OMIM
+        # df['correct_term'] is an OMIM
         # call OAK and get OMIM IDs for df['term'] and see if df['correct_term'] is one of them
         # in the case of phenotypic series, if Mondo corresponds to grouping term, accept it
         df['is_correct'] = df.apply(
@@ -47,12 +52,15 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> None:
         mrr = df.groupby("label")["reciprocal_rank"].max().mean()
         mrr_scores.append(mrr)
 
-    print(results_files) #TODO remove, here for debugging
     print("MRR scores are:\n")
     print(mrr_scores)
-    plot_data_file = os.path.join(output_dir, "/plots/plotting_data.tsv")
+    plot_dir = output_dir / "plots"
+    plot_dir.mkdir(exist_ok=True)
+    plot_data_file = plot_dir / "plotting_data.tsv"
 
-    with open(plot_data_file, 'w') as dat:
-        dat.write(str(results_files))
-        dat.write("\n")
-        dat.write(str(mrr_scores))
+    # write out results for plotting 
+    with plot_data_file.open('w', newline = '') as dat:
+        writer = csv.writer(dat, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
+        writer.writerow(results_files)
+        writer.writerow(mrr_scores)
+    return plot_data_file, plot_dir
