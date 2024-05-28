@@ -12,11 +12,13 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
     # Proposal, go for exact file name match defined somewhere as global/static/immutable 
     results_data = []
     results_files = []
+    num_ppkt = 0
     for subdir, dirs, files in os.walk(output_dir):
         for filename in files:
             if filename.startswith("result") and filename.endswith(".tsv"):
                 file_path = os.path.join(subdir, filename)
                 df = pd.read_csv(file_path, sep="\t")
+                num_ppkt = df["label"].nunique()
                 results_data.append(df)
                 # Append both the subdirectory relative to output_dir and the filename
                 results_files.append(os.path.relpath(file_path, output_dir))
@@ -63,4 +65,4 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
         writer = csv.writer(dat, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
         writer.writerow(results_files)
         writer.writerow(mrr_scores)
-    return plot_data_file, plot_dir
+    return plot_data_file, plot_dir, num_ppkt

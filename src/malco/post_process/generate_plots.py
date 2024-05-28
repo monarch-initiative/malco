@@ -5,7 +5,7 @@ import csv
 
 # Make a nice plot, use it as function or as script
 
-def make_plots(plot_data_file, plot_dir):
+def make_plots(plot_data_file, plot_dir, languages, num_ppkt):
     with plot_data_file.open('r', newline = '') as f:
         lines = csv.reader(f, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
         results_files = next(lines)
@@ -20,6 +20,6 @@ def make_plots(plot_data_file, plot_dir):
     plt.xlabel("Results File")
     plt.ylabel("Mean Reciprocal Rank (MRR)")
     plt.title("MRR of Correct Answers Across Different Results Files")
-    plot_path = plot_dir / "en_es_v1_78ppkt.png"
+    plot_path = plot_dir /  (str(len(languages)) + "_langs_" + str(num_ppkt) + "ppkt.png")
     plt.savefig(plot_path)
     plt.show()

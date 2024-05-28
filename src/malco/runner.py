@@ -20,7 +20,7 @@ class MalcoRunner(PhEvalRunner):
     config_file: Path
     version: str
     # Declare a tuple (immutable!) of languages 
-    languages = ("en", "es")
+    languages = ("en", "es", "nl", "it", "de")
 
     def prepare(self):
         """
@@ -40,6 +40,7 @@ class MalcoRunner(PhEvalRunner):
         Run the tool to produce the raw output.
         """
         print("running with predictor")
+        
         run(testdata_dir=self.testdata_dir, raw_results_dir=self.raw_results_dir,
              output_dir=self.output_dir, langs=self.languages)
 
@@ -48,10 +49,11 @@ class MalcoRunner(PhEvalRunner):
         Post-process the raw output into PhEval standardised TSV output.
         """
         print("post processing results to PhEval standardised TSV output.")
+            
         post_process(raw_results_dir=self.raw_results_dir, output_dir=self.output_dir, 
                      langs=self.languages)
-
-        plot_data_file, plot_dir = compute_mrr(output_dir=self.output_dir, 
+        
+        plot_data_file, plot_dir, num_ppkt = compute_mrr(output_dir=self.output_dir, 
                                 prompt_dir="prompts", correct_answer_file="correct_results.tsv")
         if print_plot:
-            make_plots(plot_data_file, plot_dir)
+            make_plots(plot_data_file, plot_dir, self.languages, num_ppkt)
