@@ -3,6 +3,7 @@ import os
 import requests
 
 phenopacket_zip_url="https://github.com/monarch-initiative/phenopacket-store/releases/download/0.1.11/all_phenopackets.zip"
+# TODO just point to a folder w/ ppkts
 phenopacket_dir="phenopacket-store"
 
 def setup_phenopackets(self) -> str:

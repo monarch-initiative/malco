@@ -39,8 +39,9 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path,
                     if terms:
                         num_terms = len(terms)
                         score = [1 / (i + 1) for i in range(num_terms)]  # score is reciprocal rank
-                        for term, scr in zip(terms, score):
-                            data.append({'label': label, 'term': term, 'score': scr})
+                        rank_list = [ i+1 for i in range(num_terms)]
+                        for term, scr, rank in zip(terms, score, rank_list):
+                            data.append({'label': label, 'term': term, 'score': scr, 'rank': rank})
 
     # Create DataFrame
     df = pd.DataFrame(data)
