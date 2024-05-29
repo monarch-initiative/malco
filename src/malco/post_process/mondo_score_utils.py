@@ -9,7 +9,7 @@ FULL_SCORE = 1.0
 PARTIAL_SCORE = 0.5
 
 
-@lru_cache
+@lru_cache(maxsize=4096)
 def mondo_adapter() -> OboGraphInterface:
     """
     Get the adapter for the MONDO ontology.
@@ -20,7 +20,7 @@ def mondo_adapter() -> OboGraphInterface:
     return get_adapter("sqlite:obo:mondo")
 
 
-@lru_cache()
+@lru_cache(maxsize=1024)
 def omim_mappings(term: str) -> List[str]:
     """
     Get the OMIM mappings for a term.
@@ -81,12 +81,11 @@ def score_grounded_result(prediction: str, ground_truth: str) -> float:
         # prediction is a MONDO that directly maps to a correct OMIM
         return FULL_SCORE
     mondo = mondo_adapter()
-    #TODO add a "cache", e.g. a dictionary saved somewhere as json
-    # Thus things that have already been looked up are not run again, since this step is slow
-    for mondo_descendant in mondo.descendants([prediction], predicates=[IS_A], reflexive=True):
+
+    descendants_list = mondo.descendants([prediction], predicates=[IS_A], reflexive=True)
+    for mondo_descendant in descendants_list:
         if ground_truth in omim_mappings(mondo_descendant):
             # prediction is a MONDO that maps to a correct OMIM via a descendant
-            #TODO see todo above, at this point update above cache/dictionary
             return PARTIAL_SCORE
     return 0.0
 
