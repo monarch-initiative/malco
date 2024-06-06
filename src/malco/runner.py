@@ -40,8 +40,10 @@ class MalcoRunner(PhEvalRunner):
         """
         print("running with predictor")
 
-        run(testdata_dir=self.testdata_dir, raw_results_dir=self.raw_results_dir,
-            output_dir=self.output_dir, langs=self.languages)
+        run(testdata_dir=self.testdata_dir,
+            raw_results_dir=self.raw_results_dir,
+            output_dir=self.output_dir,
+            langs=self.languages)
 
     def post_process(self, print_plot=True):
         """
@@ -52,7 +54,10 @@ class MalcoRunner(PhEvalRunner):
         post_process(raw_results_dir=self.raw_results_dir, output_dir=self.output_dir,
                      langs=self.languages)
 
-        plot_data_file, plot_dir, num_ppkt = compute_mrr(output_dir=self.output_dir,
-                                prompt_dir="prompts", correct_answer_file="correct_results.tsv")
+        plot_data_file, plot_dir, num_ppkt = (
+            compute_mrr(output_dir=self.output_dir,
+                        prompt_dir="prompts",
+                        correct_answer_file="correct_results.tsv")
+        )
         if print_plot:
             make_plots(plot_data_file, plot_dir, self.languages, num_ppkt)
