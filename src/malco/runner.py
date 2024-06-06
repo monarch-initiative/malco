@@ -27,12 +27,12 @@ class MalcoRunner(PhEvalRunner):
         Pre-process any data and inputs necessary to run the tool.
         """
         print("Preparing...\n")
-        # Ensure we have phenopacket-store downloaded
-        phenopacket_store_path = setup_phenopackets(self)
-
-        os.system(f"java -jar {self.input_dir}/phenopacket2prompt.jar download")
-        os.system(
-             f"java -jar {self.input_dir}/phenopacket2prompt.jar batch -d {phenopacket_store_path}")
+        # Before this prepare step:
+        # We start with cohort with 1 phenopacket per disease, run
+        # phenopacket2prompt.jar to get prompts
+        # We then commit this to the repo, and the phenopackets and prompts here
+        # are the source of truth
+        pass
 
     def run(self):
         """
@@ -41,7 +41,7 @@ class MalcoRunner(PhEvalRunner):
         print("running with predictor")
 
         run(testdata_dir=self.testdata_dir, raw_results_dir=self.raw_results_dir,
-             output_dir=self.output_dir, langs=self.languages)
+            output_dir=self.output_dir, langs=self.languages)
 
     def post_process(self, print_plot=True):
         """
