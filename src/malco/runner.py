@@ -45,19 +45,24 @@ class MalcoRunner(PhEvalRunner):
             input_dir=self.input_dir,
             langs=self.languages)
 
-    def post_process(self, print_plot=True):
+    def post_process(self,
+                     print_plot=True,
+                     prompts_subdir_name="prompts",
+                     correct_answer_file="correct_results.tsv"
+                     ):
         """
         Post-process the raw output into PhEval standardised TSV output.
         """
         print("post processing results to PhEval standardised TSV output.")
 
-        post_process(raw_results_dir=self.raw_results_dir, output_dir=self.output_dir,
+        post_process(raw_results_dir=self.raw_results_dir,
+                     output_dir=self.output_dir,
                      langs=self.languages)
 
         plot_data_file, plot_dir, num_ppkt = (
             compute_mrr(output_dir=self.output_dir,
-                        prompt_dir="prompts",
-                        correct_answer_file="correct_results.tsv")
+                        prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
+                        correct_answer_file=correct_answer_file)
         )
         if print_plot:
             make_plots(plot_data_file, plot_dir, self.languages, num_ppkt)
