@@ -1,0 +1,46 @@
+---
+input_text: |-
+  1. Leigh syndrome
+  2. MELAS syndrome (Mitochondrial Encephalomyopathy, Lactic Acidosis, and Stroke-like episodes)
+  3. Kearns-Sayre syndrome
+  4. Alpers-Huttenlocher syndrome
+  5. Pearson marrow-pancreas syndrome
+raw_completion_output: |-
+  terms: Leigh syndrome; MELAS syndrome; Kearns-Sayre syndrome; Alpers-Huttenlocher syndrome; Pearson marrow-pancreas syndrome
+  label: Disease Names
+prompt: |+
+  From the text below, extract the following entities in the following format:
+
+  terms: <A semicolon-separated list of any disease names.>
+  label: <The label (name) of the named thing>
+
+
+  Text:
+  1. Leigh syndrome
+  2. MELAS syndrome (Mitochondrial Encephalomyopathy, Lactic Acidosis, and Stroke-like episodes)
+  3. Kearns-Sayre syndrome
+  4. Alpers-Huttenlocher syndrome
+  5. Pearson marrow-pancreas syndrome
+
+  ===
+
+extracted_object:
+  id: deb2ff74-3b9f-40f6-aa93-1261a6ca38c0
+  label: PMID_23993194_Family_2_Case_2-prompt.txt
+  terms:
+    - OMIM:256000
+    - MONDO:0010789
+    - OMIM:530000
+    - OMIM:203700
+    - OMIM:557000
+named_entities:
+  - id: OMIM:256000
+    label: Leigh syndrome
+  - id: MONDO:0010789
+    label: MELAS syndrome
+  - id: OMIM:530000
+    label: Kearns-Sayre syndrome
+  - id: OMIM:203700
+    label: Alpers-Huttenlocher syndrome
+  - id: OMIM:557000
+    label: Pearson marrow-pancreas syndrome

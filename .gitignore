@@ -3,6 +3,8 @@ venv/
 __pycache__
 data/*
 prompts/*
-inputdir
 outputdir
+.*db
+inputdir/all_phenopackets.zip
+inputdir/phenopacket-store/
 .openai_cache.db
