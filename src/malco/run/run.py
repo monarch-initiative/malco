@@ -6,7 +6,7 @@ import os
 
 def run(testdata_dir: Path,
         raw_results_dir: Path,
-        output_dir: Path,
+        input_dir: Path,
         langs: tuple) -> None:
     """
     Run the tool to obtain the raw results.
@@ -21,5 +21,8 @@ def run(testdata_dir: Path,
 
     for lang in langs:
         os.system(
-            f"ontogpt -v run-multilingual-analysis --output={output_dir}/raw_results/{lang}/results.yaml {mydir}/prompts/{lang}/ {output_dir}/raw_results/{lang}/differentials_by_file/"
+            f"ontogpt -v run-multilingual-analysis "
+            f"--output={raw_results_dir}/{lang}/results.yaml "  # save raw OntoGPT output
+            f"{input_dir}/prompts/{lang}/ "
+            f"{raw_results_dir}/{lang}/differentials_by_file/"
         )

@@ -42,7 +42,7 @@ class MalcoRunner(PhEvalRunner):
 
         run(testdata_dir=self.testdata_dir,
             raw_results_dir=self.raw_results_dir,
-            output_dir=self.output_dir,
+            input_dir=self.input_dir,
             langs=self.languages)
 
     def post_process(self, print_plot=True):
