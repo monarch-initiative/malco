@@ -1,27 +1,20 @@
-from functools import lru_cache
-from typing import List
-
-from oaklib import get_adapter
 from oaklib.datamodels.vocabulary import IS_A
-from oaklib.interfaces import OboGraphInterface, MappingProviderInterface
+from oaklib.interfaces import MappingProviderInterface
+from typing import List
+from functools import lru_cache
+#from cachetools import func.lru_cache 
+from cachetools import cached, LRUCache
+from cachetools.keys import hashkey
+
+
 
 FULL_SCORE = 1.0
 PARTIAL_SCORE = 0.5
 
 
-@lru_cache(maxsize=4096)
-def mondo_adapter() -> OboGraphInterface:
-    """
-    Get the adapter for the MONDO ontology.
-
-    Returns:
-        Adapter: The adapter.
-    """
-    return get_adapter("sqlite:obo:mondo")
-
-
-@lru_cache(maxsize=1024)
-def omim_mappings(term: str) -> List[str]:
+# @lru_cache(maxsize=1024)
+@cached(cache=LRUCache(maxsize=16384), info=True, key=lambda term, adapter: hashkey(term))
+def omim_mappings(term: str, adapter) -> List[str]: # , mondo: any
     """
     Get the OMIM mappings for a term.
 
@@ -35,18 +28,16 @@ def omim_mappings(term: str) -> List[str]:
 
     Returns:
         str: The OMIM mappings.
-    """
-    adapter = mondo_adapter()
-    if not isinstance(adapter, MappingProviderInterface):
-        raise ValueError("Adapter is not an MappingProviderInterface")
+    """   
     omims = []
-    for m in adapter.sssom_mappings([term], "OMIM"):
+    for m in adapter.sssom_mappings([term], source="OMIM"):
         if m.predicate_id == "skos:exactMatch":
             omims.append(m.object_id)
     return omims
 
 
-def score_grounded_result(prediction: str, ground_truth: str) -> float:
+@cached(cache=LRUCache(maxsize=4096), info=True, key=lambda prediction, ground_truth, mondo: hashkey(prediction, ground_truth))
+def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
     """
     Score the grounded result.
 
@@ -74,17 +65,23 @@ def score_grounded_result(prediction: str, ground_truth: str) -> float:
     Returns:
         float: The score.
     """
+    if not isinstance(mondo, MappingProviderInterface):
+        raise ValueError("Adapter is not an MappingProviderInterface")
+    
     if prediction == ground_truth:
         # predication is the correct OMIM
         return FULL_SCORE
-    if ground_truth in omim_mappings(prediction):
+
+    #if ground_truth in omim_mappings(prediction, mondo):
+    if ground_truth in omim_mappings(prediction, mondo):
         # prediction is a MONDO that directly maps to a correct OMIM
         return FULL_SCORE
-    mondo = mondo_adapter()
+
+
 
     descendants_list = mondo.descendants([prediction], predicates=[IS_A], reflexive=True)
     for mondo_descendant in descendants_list:
-        if ground_truth in omim_mappings(mondo_descendant):
+        if ground_truth in omim_mappings(mondo_descendant, mondo):
             # prediction is a MONDO that maps to a correct OMIM via a descendant
             return PARTIAL_SCORE
     return 0.0
