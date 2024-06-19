@@ -11,8 +11,6 @@ from oaklib.interfaces import OboGraphInterface, MappingProviderInterface
 
 from oaklib import get_adapter
 
-from viztracer import VizTracer
-
 
 def mondo_adapter() -> OboGraphInterface:
     """
@@ -48,9 +46,6 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
     label_to_correct_term = answers.set_index("label")["term"].to_dict()
     # Calculate the Mean Reciprocal Rank (MRR) for each file
     mrr_scores = []
-
-    tracer = VizTracer(tracer_entries=8000000)
-    tracer.start()
 
     mondo = mondo_adapter()
 
@@ -91,9 +86,7 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
         print('=' * 100)
         print('omim_mappings cache info:\n')
         print(omim_mappings.cache_info())
-
-    tracer.stop()
-    tracer.save("mondoscore_viz_prof.json")
+        print('=' * 100)
 
     print("MRR scores are:\n")
     print(mrr_scores)

@@ -11,8 +11,6 @@ from cachetools.keys import hashkey
 FULL_SCORE = 1.0
 PARTIAL_SCORE = 0.5
 
-
-# @lru_cache(maxsize=1024)
 @cached(cache=LRUCache(maxsize=16384), info=True, key=lambda term, adapter: hashkey(term))
 def omim_mappings(term: str, adapter) -> List[str]: # , mondo: any
     """
@@ -42,25 +40,23 @@ def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
     Score the grounded result.
 
     Exact match:
-
     >>> score_grounded_result("OMIM:132800", "OMIM:132800")
     1.0
 
     The predicted Mondo is equivalent to the ground truth OMIM
     (via skos:exactMatches in Mondo):
-
     >>> score_grounded_result("MONDO:0007566", "OMIM:132800")
     1.0
 
     The predicted Mondo is a disease entity that groups multiple
     OMIMs, one of which is the ground truth:
-
     >>> score_grounded_result("MONDO:0008029", "OMIM:158810")
     0.5
 
     Args:
         prediction (str): The prediction.
         ground_truth (str): The ground truth.
+        mondo: the mondo adapter.
 
     Returns:
         float: The score.
@@ -76,8 +72,6 @@ def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
     if ground_truth in omim_mappings(prediction, mondo):
         # prediction is a MONDO that directly maps to a correct OMIM
         return FULL_SCORE
-
-
 
     descendants_list = mondo.descendants([prediction], predicates=[IS_A], reflexive=True)
     for mondo_descendant in descendants_list:
