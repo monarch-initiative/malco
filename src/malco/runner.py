@@ -9,8 +9,6 @@ from malco.run.run import run
 from malco.prepare.setup_phenopackets import setup_phenopackets
 from malco.post_process.generate_plots import make_plots
 import os
-from viztracer import VizTracer
-
 
 @dataclass
 class MalcoRunner(PhEvalRunner):
@@ -40,14 +38,10 @@ class MalcoRunner(PhEvalRunner):
         Run the tool to produce the raw output.
         """
         print("running with predictor")
-        tracer = VizTracer()
-        tracer.start()
         run(testdata_dir=self.testdata_dir,
             raw_results_dir=self.raw_results_dir,
             input_dir=self.input_dir,
             langs=self.languages)
-        tracer.stop()
-        tracer.save("ontogpt_viz_profiling.json") 
 
 
     def post_process(self,
