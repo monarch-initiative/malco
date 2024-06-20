@@ -1,5 +1,6 @@
 from oaklib.datamodels.vocabulary import IS_A
-from oaklib.interfaces import MappingProviderInterface
+from oaklib.interfaces import MappingProviderInterface, OboGraphInterface
+
 from typing import List 
 from cachetools import cached, LRUCache
 from cachetools.keys import hashkey
