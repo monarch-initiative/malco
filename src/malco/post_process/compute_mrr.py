@@ -6,7 +6,7 @@ import pickle as pkl
 from malco.post_process.mondo_score_utils import score_grounded_result
 from malco.post_process.mondo_score_utils import omim_mappings
 from typing import List
-from oaklib.interfaces import OboGraphInterface, MappingProviderInterface
+from oaklib.interfaces import OboGraphInterface
 
 
 from oaklib import get_adapter

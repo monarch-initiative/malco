@@ -1,6 +1,5 @@
 from oaklib.datamodels.vocabulary import IS_A
-from oaklib.interfaces import MappingProviderInterface, OboGraphInterface
-from oaklib import get_adapter
+from oaklib.interfaces import MappingProviderInterface
 
 from typing import List 
 from cachetools import cached, LRUCache
@@ -18,6 +17,7 @@ def omim_mappings(term: str, adapter) -> List[str]:
 
     Example:
 
+    >>> from oaklib import get_adapter
     >>> omim_mappings("MONDO:0007566", get_adapter("sqlite:obo:mondo"))
     ['OMIM:132800']
 
@@ -41,7 +41,7 @@ def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
     Score the grounded result.
 
     Exact match:
-
+    >>> from oaklib import get_adapter
     >>> score_grounded_result("OMIM:132800", "OMIM:132800", get_adapter("sqlite:obo:mondo"))
     1.0
 
