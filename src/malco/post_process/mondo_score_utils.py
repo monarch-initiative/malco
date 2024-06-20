@@ -1,5 +1,6 @@
 from oaklib.datamodels.vocabulary import IS_A
 from oaklib.interfaces import MappingProviderInterface, OboGraphInterface
+from oaklib import get_adapter
 
 from typing import List 
 from cachetools import cached, LRUCache
@@ -53,7 +54,7 @@ def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
     The predicted Mondo is a disease entity that groups multiple
     OMIMs, one of which is the ground truth:
     
-    >>> score_grounded_result("MONDO:0008029", "OMIM:158810", mondo_adapter())
+    >>> score_grounded_result("MONDO:0008029", "OMIM:158810", get_adapter("sqlite:obo:mondo"))
     0.5
 
     Args:
