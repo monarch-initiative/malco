@@ -17,7 +17,7 @@ def omim_mappings(term: str, adapter) -> List[str]:
 
     Example:
 
-    >>> omim_mappings("MONDO:0007566", mondo_adapter())
+    >>> omim_mappings("MONDO:0007566", get_adapter("sqlite:obo:mondo"))
     ['OMIM:132800']
 
     Args:
@@ -41,13 +41,13 @@ def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
 
     Exact match:
 
-    >>> score_grounded_result("OMIM:132800", "OMIM:132800", mondo_adapter())
+    >>> score_grounded_result("OMIM:132800", "OMIM:132800", get_adapter("sqlite:obo:mondo"))
     1.0
 
     The predicted Mondo is equivalent to the ground truth OMIM
     (via skos:exactMatches in Mondo):
     
-    >>> score_grounded_result("MONDO:0007566", "OMIM:132800", mondo_adapter())
+    >>> score_grounded_result("MONDO:0007566", "OMIM:132800", get_adapter("sqlite:obo:mondo"))
     1.0
 
     The predicted Mondo is a disease entity that groups multiple
