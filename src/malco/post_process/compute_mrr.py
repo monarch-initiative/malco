@@ -19,7 +19,7 @@ def mondo_adapter() -> OboGraphInterface:
     Returns:
         Adapter: The adapter.
     """
-    return get_adapter("sqlite:obo:mondo") # , cache_lookups=True
+    return get_adapter("sqlite:obo:mondo") 
 
 def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
     # Read in results TSVs from self.output_dir that match glob results*tsv 
@@ -59,10 +59,6 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
         # df['correct_term'] is an OMIM
         # call OAK and get OMIM IDs for df['term'] and see if df['correct_term'] is one of them
         # in the case of phenotypic series, if Mondo corresponds to grouping term, accept it
-                        
-        #df['is_correct'] = df.apply(
-        #       lambda row: score_grounded_result(row['term'], row['correct_term'], mondo) > 0,
-         #   axis=1)
 
         # Calculate reciprocal rank
         # Make sure caching is used in the following by unwrapping explicitly

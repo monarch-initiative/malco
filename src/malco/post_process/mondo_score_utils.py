@@ -1,8 +1,6 @@
 from oaklib.datamodels.vocabulary import IS_A
 from oaklib.interfaces import MappingProviderInterface
-from typing import List
-from functools import lru_cache
-#from cachetools import func.lru_cache 
+from typing import List 
 from cachetools import cached, LRUCache
 from cachetools.keys import hashkey
 
@@ -12,13 +10,13 @@ FULL_SCORE = 1.0
 PARTIAL_SCORE = 0.5
 
 @cached(cache=LRUCache(maxsize=16384), info=True, key=lambda term, adapter: hashkey(term))
-def omim_mappings(term: str, adapter) -> List[str]: # , mondo: any
+def omim_mappings(term: str, adapter) -> List[str]: 
     """
     Get the OMIM mappings for a term.
 
     Example:
 
-    >>> omim_mappings("MONDO:0007566")
+    >>> omim_mappings("MONDO:0007566", adapter)
     ['OMIM:132800']
 
     Args:
@@ -40,17 +38,17 @@ def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
     Score the grounded result.
 
     Exact match:
-    >>> score_grounded_result("OMIM:132800", "OMIM:132800")
+    >>> score_grounded_result("OMIM:132800", "OMIM:132800", mondo)
     1.0
 
     The predicted Mondo is equivalent to the ground truth OMIM
     (via skos:exactMatches in Mondo):
-    >>> score_grounded_result("MONDO:0007566", "OMIM:132800")
+    >>> score_grounded_result("MONDO:0007566", "OMIM:132800", mondo)
     1.0
 
     The predicted Mondo is a disease entity that groups multiple
     OMIMs, one of which is the ground truth:
-    >>> score_grounded_result("MONDO:0008029", "OMIM:158810")
+    >>> score_grounded_result("MONDO:0008029", "OMIM:158810", mondo)
     0.5
 
     Args:
