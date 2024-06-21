@@ -47,8 +47,11 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
     label_to_correct_term = answers.set_index("label")["term"].to_dict()
     # Calculate the Mean Reciprocal Rank (MRR) for each file
     mrr_scores = []
+    header = ["lang", "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n10p", "nf"]
+    rank_df = pd.DataFrame(0, index=np.arange(len(results_files)), columns=header)
 
     cache_file = output_dir / "cache_log.txt"
+
     with cache_file.open('w', newline = '') as cf:
         now_is = datetime.now().strftime("%Y%m%d-%H%M%S")
         cf.write("Timestamp: " + now_is +"\n\n")
@@ -78,10 +81,33 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
             df["reciprocal_rank"] = df.apply(
                 lambda row: 1 / row["rank"] if row["is_correct"] else 0, axis=1
             )
+
             # Calculate MRR for this file
             mrr = df.groupby("label")["reciprocal_rank"].max().mean()
             mrr_scores.append(mrr)
+            
             breakpoint()
+
+            # Calculate top<n> of each rank
+            rank_df.loc[i,"lang"] = results_files[i][0:2]
+            
+            ppkts = df.groupby("label")[["rank","is_correct"]] 
+
+            # for each group
+            # is there a true? 
+            #       # no  --> increase nf
+            #       rank_df.loc[i,"nf"] += 1       
+            #       # yes --> what's it rank? It's <j>
+            #       if j<11:
+            #           # increase n<j>
+            #           rank_df.loc[i,"n"+str(j)] += 1
+            #       else:
+            #           # increase n10p
+            #           rank_df.loc[i,"n10p"] += 1
+
+            
+            
+            # Write cache charatcteristics to file
             cf.write(results_files[i])
             cf.write('\nscore_grounded_result cache info:\n')
             cf.write(str(score_grounded_result.cache_info()))
@@ -89,6 +115,15 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
             cf.write(str(omim_mappings.cache_info()))
             cf.write('\n\n')
             i = i + 1
+
+    '''
+    topn_file = output_dir / "topn_result.tsv"
+    # use rank_df.to_csv() or something similar
+    with topn_file.open('w', newline = '') as topn:
+        writer = csv.writer(topn, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
+        writer.writerow(header)
+        writer.writerow(topn_vals)
+    '''
 
     print("MRR scores are:\n")
     print(mrr_scores)
