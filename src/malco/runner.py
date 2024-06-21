@@ -10,7 +10,6 @@ from malco.prepare.setup_phenopackets import setup_phenopackets
 from malco.post_process.generate_plots import make_plots
 import os
 
-
 @dataclass
 class MalcoRunner(PhEvalRunner):
     input_dir: Path
@@ -39,11 +38,11 @@ class MalcoRunner(PhEvalRunner):
         Run the tool to produce the raw output.
         """
         print("running with predictor")
-
         run(testdata_dir=self.testdata_dir,
             raw_results_dir=self.raw_results_dir,
             input_dir=self.input_dir,
             langs=self.languages)
+
 
     def post_process(self,
                      print_plot=True,
