@@ -1,6 +1,7 @@
 import os 
 import csv
 from pathlib import Path
+from datetime import datetime
 import pandas as pd
 import pickle as pkl
 from malco.post_process.mondo_score_utils import score_grounded_result
@@ -47,42 +48,47 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
     # Calculate the Mean Reciprocal Rank (MRR) for each file
     mrr_scores = []
 
-    mondo = mondo_adapter()
+    cache_file = output_dir / "cache_log.txt"
+    with cache_file.open('w', newline = '') as cf:
+        now_is = datetime.now().strftime("%Y%m%d-%H%M%S")
+        cf.write("Timestamp: " + now_is +"\n\n")
+        mondo = mondo_adapter()
+        i = 0
+        for df in results_data:
+            # For each label in the results file, find if the correct term is ranked
+            df["rank"] = df.groupby("label")["score"].rank(ascending=False, method="first")
+            label_4_non_eng = df["label"].str.replace("_[a-z][a-z]-prompt", "_en-prompt", regex=True)
+            df["correct_term"] = label_4_non_eng.map(label_to_correct_term)
 
-    for df in results_data:
-        # For each label in the results file, find if the correct term is ranked
-        df["rank"] = df.groupby("label")["score"].rank(ascending=False, method="first")
-        label_4_non_eng = df["label"].str.replace("_[a-z][a-z]-prompt", "_en-prompt", regex=True)
-        df["correct_term"] = label_4_non_eng.map(label_to_correct_term)
+            # df['term'] is Mondo or OMIM ID, or even disease label
+            # df['correct_term'] is an OMIM
+            # call OAK and get OMIM IDs for df['term'] and see if df['correct_term'] is one of them
+            # in the case of phenotypic series, if Mondo corresponds to grouping term, accept it
 
-        # df['term'] is Mondo or OMIM ID, or even disease label
-        # df['correct_term'] is an OMIM
-        # call OAK and get OMIM IDs for df['term'] and see if df['correct_term'] is one of them
-        # in the case of phenotypic series, if Mondo corresponds to grouping term, accept it
+            # Calculate reciprocal rank
+            # Make sure caching is used in the following by unwrapping explicitly
+            results = []
+            for idx, row in df.iterrows():
+                val = score_grounded_result(row['term'], row['correct_term'], mondo)
+                is_correct = val > 0
+                results.append(is_correct)
 
-        # Calculate reciprocal rank
-        # Make sure caching is used in the following by unwrapping explicitly
-        results = []
-        for idx, row in df.iterrows():
-            val = score_grounded_result(row['term'], row['correct_term'], mondo)
-            is_correct = val > 0
-            results.append(is_correct)
+            df['is_correct'] = results
 
-        df['is_correct'] = results
-
-        df["reciprocal_rank"] = df.apply(
-            lambda row: 1 / row["rank"] if row["is_correct"] else 0, axis=1
-        )
-        # Calculate MRR for this file
-        mrr = df.groupby("label")["reciprocal_rank"].max().mean()
-        mrr_scores.append(mrr)
-        print('=' * 100)
-        print('score_grounded_result cache info:\n')
-        print(score_grounded_result.cache_info())
-        print('=' * 100)
-        print('omim_mappings cache info:\n')
-        print(omim_mappings.cache_info())
-        print('=' * 100)
+            df["reciprocal_rank"] = df.apply(
+                lambda row: 1 / row["rank"] if row["is_correct"] else 0, axis=1
+            )
+            # Calculate MRR for this file
+            mrr = df.groupby("label")["reciprocal_rank"].max().mean()
+            mrr_scores.append(mrr)
+            breakpoint()
+            cf.write(results_files[i])
+            cf.write('\nscore_grounded_result cache info:\n')
+            cf.write(str(score_grounded_result.cache_info()))
+            cf.write('\nomim_mappings cache info:\n')
+            cf.write(str(omim_mappings.cache_info()))
+            cf.write('\n\n')
+            i = i + 1
 
     print("MRR scores are:\n")
     print(mrr_scores)
