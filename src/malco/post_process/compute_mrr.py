@@ -3,6 +3,7 @@ import csv
 from pathlib import Path
 from datetime import datetime
 import pandas as pd
+import numpy as np
 import pickle as pkl
 from malco.post_process.mondo_score_utils import score_grounded_result
 from malco.post_process.mondo_score_utils import omim_mappings
@@ -86,24 +87,28 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
             mrr = df.groupby("label")["reciprocal_rank"].max().mean()
             mrr_scores.append(mrr)
             
-            breakpoint()
-
             # Calculate top<n> of each rank
             rank_df.loc[i,"lang"] = results_files[i][0:2]
             
             ppkts = df.groupby("label")[["rank","is_correct"]] 
-
+            index_matches = df.index[df['is_correct']]
+          
             # for each group
-            # is there a true? 
-            #       # no  --> increase nf
-            #       rank_df.loc[i,"nf"] += 1       
-            #       # yes --> what's it rank? It's <j>
-            #       if j<11:
-            #           # increase n<j>
-            #           rank_df.loc[i,"n"+str(j)] += 1
-            #       else:
-            #           # increase n10p
-            #           rank_df.loc[i,"n10p"] += 1
+            for ppkt in ppkts:
+                # is there a true? ppkt is tuple ("filename", dataframe) --> ppkt[1] is a dataframe 
+                if not any(ppkt[1]["is_correct"]):
+                    # no  --> increase nf = "not found"
+                    rank_df.loc[i,"nf"] += 1       
+                else:
+                   # yes --> what's it rank? It's <j>
+                   jind = ppkt[1].index[ppkt[1]['is_correct']]
+                   j = int(ppkt[1]['rank'].loc[jind].values[0])
+                   if j<11:
+                       # increase n<j>
+                       rank_df.loc[i,"n"+str(j)] += 1
+                   else:
+                       # increase n10p
+                       rank_df.loc[i,"n10p"] += 1
 
             
             
@@ -116,9 +121,12 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
             cf.write('\n\n')
             i = i + 1
 
-    '''
+    
     topn_file = output_dir / "topn_result.tsv"
     # use rank_df.to_csv() or something similar
+    rank_df.to_csv(topn_file, sep='\t', index=False)
+
+    '''
     with topn_file.open('w', newline = '') as topn:
         writer = csv.writer(topn, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
         writer.writerow(header)
