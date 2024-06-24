@@ -126,12 +126,6 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
     # use rank_df.to_csv() or something similar
     rank_df.to_csv(topn_file, sep='\t', index=False)
 
-    '''
-    with topn_file.open('w', newline = '') as topn:
-        writer = csv.writer(topn, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
-        writer.writerow(header)
-        writer.writerow(topn_vals)
-    '''
 
     print("MRR scores are:\n")
     print(mrr_scores)
