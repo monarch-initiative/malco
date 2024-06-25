@@ -7,3 +7,4 @@ prompts/*
 .openai_cache.db
 outputdir
 inputdir
+outputdir_text_mined/
