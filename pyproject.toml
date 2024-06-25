@@ -10,6 +10,7 @@ packages = [{include = "malco", from = "src"}]
 python = "^3.10"
 pheval = "^0.3.2"
 setuptools = "^69.5.1"
+ontogpt = "^0.3.15"
 
 
 [tool.poetry.plugins."pheval.plugins"]

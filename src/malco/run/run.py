@@ -1,9 +1,18 @@
+import os
 from pathlib import Path
 import multiprocessing
 import subprocess
 
 
 def call_ontogpt(lang, raw_results_dir, input_dir):
+    import shutil
+
+    ontogpt_path = shutil.which('ontogpt')
+    if ontogpt_path is None:
+        # print out path
+        print("Path: ", os.environ['PATH'])
+        raise FileNotFoundError("ontogpt command not found in PATH")
+
     command = (
         f"ontogpt -v run-multilingual-analysis "
         f"--output={raw_results_dir}/{lang}/results.yaml "  # save raw OntoGPT output

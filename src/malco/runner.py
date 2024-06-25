@@ -19,7 +19,7 @@ class MalcoRunner(PhEvalRunner):
     config_file: Path
     version: str
     # Declare a tuple (immutable!) of languages
-    languages = ("en", "es", "nl", "it", "de")
+    languages = ["en"]
 
     def prepare(self):
         """
