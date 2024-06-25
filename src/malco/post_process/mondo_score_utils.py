@@ -72,7 +72,6 @@ def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
         # predication is the correct OMIM
         return FULL_SCORE
 
-    #if ground_truth in omim_mappings(prediction, mondo):
     if ground_truth in omim_mappings(prediction, mondo):
         # prediction is a MONDO that directly maps to a correct OMIM
         return FULL_SCORE

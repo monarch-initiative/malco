@@ -122,7 +122,7 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
             i = i + 1
 
     
-    topn_file = output_dir / "topn_result.tsv"
+    topn_file = output_dir / "plots/topn_result.tsv"
     # use rank_df.to_csv() or something similar
     rank_df.to_csv(topn_file, sep='\t', index=False)
 
@@ -138,4 +138,5 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
         writer = csv.writer(dat, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
         writer.writerow(results_files)
         writer.writerow(mrr_scores)
-    return plot_data_file, plot_dir, num_ppkt
+        
+    return plot_data_file, plot_dir, num_ppkt, topn_file
