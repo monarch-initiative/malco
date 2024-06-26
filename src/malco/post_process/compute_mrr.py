@@ -1,15 +1,11 @@
-import os 
+import os
 import csv
 from pathlib import Path
 from datetime import datetime
 import pandas as pd
-import pickle as pkl
 from malco.post_process.mondo_score_utils import score_grounded_result
 from malco.post_process.mondo_score_utils import omim_mappings
-from typing import List
 from oaklib.interfaces import OboGraphInterface
-
-
 from oaklib import get_adapter
 
 
@@ -20,10 +16,11 @@ def mondo_adapter() -> OboGraphInterface:
     Returns:
         Adapter: The adapter.
     """
-    return get_adapter("sqlite:obo:mondo") 
+    return get_adapter("sqlite:obo:mondo")
 
-def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
-    # Read in results TSVs from self.output_dir that match glob results*tsv 
+
+def compute_mrr_and_hits_at_n(output_dir, prompt_dir, correct_answer_file) -> (str, str, Path, int):
+    # Read in results TSVs from self.output_dir that match glob results*tsv
     results_data = []
     results_files = []
     num_ppkt = 0
@@ -47,17 +44,22 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
     label_to_correct_term = answers.set_index("label")["term"].to_dict()
     # Calculate the Mean Reciprocal Rank (MRR) for each file
     mrr_scores = []
+    hits_at_1 = []
+    hits_at_5 = []
+    hits_at_10 = []
 
     cache_file = output_dir / "cache_log.txt"
-    with cache_file.open('w', newline = '') as cf:
+    with cache_file.open('w', newline='') as cf:
         now_is = datetime.now().strftime("%Y%m%d-%H%M%S")
-        cf.write("Timestamp: " + now_is +"\n\n")
+        cf.write("Timestamp: " + now_is + "\n\n")
         mondo = mondo_adapter()
         i = 0
         for df in results_data:
             # For each label in the results file, find if the correct term is ranked
-            df["rank"] = df.groupby("label")["score"].rank(ascending=False, method="first")
-            label_4_non_eng = df["label"].str.replace("_[a-z][a-z]-prompt", "_en-prompt", regex=True)
+            df["rank"] = df.groupby("label")["score"].rank(ascending=False,
+                                                           method="first")
+            label_4_non_eng = df["label"].str.replace("_[a-z][a-z]-prompt",
+                                                      "_en-prompt", regex=True)
             df["correct_term"] = label_4_non_eng.map(label_to_correct_term)
 
             # df['term'] is Mondo or OMIM ID, or even disease label
@@ -81,7 +83,14 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
             # Calculate MRR for this file
             mrr = df.groupby("label")["reciprocal_rank"].max().mean()
             mrr_scores.append(mrr)
-            breakpoint()
+            # Calculate hits at 1, 5, 10
+            hits_at_1.append(
+                (df[df["rank"] == 1]["is_correct"].sum() / df["label"].nunique()) * 100)
+            hits_at_5.append(
+                (df[df["rank"] <= 5]["is_correct"].sum() / df["label"].nunique()) * 100)
+            hits_at_10.append((df[df["rank"] <= 10]["is_correct"].sum() / df[
+                "label"].nunique()) * 100)
+
             cf.write(results_files[i])
             cf.write('\nscore_grounded_result cache info:\n')
             cf.write(str(score_grounded_result.cache_info()))
@@ -94,11 +103,23 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
     print(mrr_scores)
     plot_dir = output_dir / "plots"
     plot_dir.mkdir(exist_ok=True)
-    plot_data_file = plot_dir / "plotting_data.tsv"
+    mrr_plot_data = plot_dir / "plotting_data.tsv"
+    hits_at_n_data = plot_dir / "plotting_data_hits_at_n.tsv"
 
-    # write out results for plotting 
-    with plot_data_file.open('w', newline = '') as dat:
-        writer = csv.writer(dat, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
+    # write out results for plotting
+    with mrr_plot_data.open('w', newline='') as dat:
+        writer = csv.writer(dat, quoting=csv.QUOTE_NONNUMERIC, delimiter='\t',
+                            lineterminator='\n')
         writer.writerow(results_files)
         writer.writerow(mrr_scores)
-    return plot_data_file, plot_dir, num_ppkt
+
+    # write out hits at 1, 5, 10 for plotting
+    with hits_at_n_data.open('w', newline='') as dat:
+        writer = csv.writer(dat, quoting=csv.QUOTE_NONNUMERIC, delimiter='\t',
+                            lineterminator='\n')
+        writer.writerow(["file", "hits_at_1", "hits_at_5", "hits_at_10"])
+        for i in range(len(results_files)):
+            writer.writerow(
+                [results_files[i], hits_at_1[i], hits_at_5[i], hits_at_10[i]])
+
+    return (mrr_plot_data, hits_at_n_data, plot_dir, num_ppkt)
