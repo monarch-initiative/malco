@@ -3,6 +3,7 @@ import csv
 from pathlib import Path
 from datetime import datetime
 import pandas as pd
+import numpy as np
 import pickle as pkl
 from malco.post_process.mondo_score_utils import score_grounded_result
 from malco.post_process.mondo_score_utils import omim_mappings
@@ -47,8 +48,11 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
     label_to_correct_term = answers.set_index("label")["term"].to_dict()
     # Calculate the Mean Reciprocal Rank (MRR) for each file
     mrr_scores = []
+    header = ["lang", "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n10p", "nf"]
+    rank_df = pd.DataFrame(0, index=np.arange(len(results_files)), columns=header)
 
     cache_file = output_dir / "cache_log.txt"
+
     with cache_file.open('w', newline = '') as cf:
         now_is = datetime.now().strftime("%Y%m%d-%H%M%S")
         cf.write("Timestamp: " + now_is +"\n\n")
@@ -78,10 +82,37 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
             df["reciprocal_rank"] = df.apply(
                 lambda row: 1 / row["rank"] if row["is_correct"] else 0, axis=1
             )
+
             # Calculate MRR for this file
             mrr = df.groupby("label")["reciprocal_rank"].max().mean()
             mrr_scores.append(mrr)
-            breakpoint()
+            
+            # Calculate top<n> of each rank
+            rank_df.loc[i,"lang"] = results_files[i][0:2]
+            
+            ppkts = df.groupby("label")[["rank","is_correct"]] 
+            index_matches = df.index[df['is_correct']]
+          
+            # for each group
+            for ppkt in ppkts:
+                # is there a true? ppkt is tuple ("filename", dataframe) --> ppkt[1] is a dataframe 
+                if not any(ppkt[1]["is_correct"]):
+                    # no  --> increase nf = "not found"
+                    rank_df.loc[i,"nf"] += 1       
+                else:
+                   # yes --> what's it rank? It's <j>
+                   jind = ppkt[1].index[ppkt[1]['is_correct']]
+                   j = int(ppkt[1]['rank'].loc[jind].values[0])
+                   if j<11:
+                       # increase n<j>
+                       rank_df.loc[i,"n"+str(j)] += 1
+                   else:
+                       # increase n10p
+                       rank_df.loc[i,"n10p"] += 1
+
+            
+            
+            # Write cache charatcteristics to file
             cf.write(results_files[i])
             cf.write('\nscore_grounded_result cache info:\n')
             cf.write(str(score_grounded_result.cache_info()))
@@ -89,6 +120,12 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
             cf.write(str(omim_mappings.cache_info()))
             cf.write('\n\n')
             i = i + 1
+
+    
+    topn_file = output_dir / "plots/topn_result.tsv"
+    # use rank_df.to_csv() or something similar
+    rank_df.to_csv(topn_file, sep='\t', index=False)
+
 
     print("MRR scores are:\n")
     print(mrr_scores)
@@ -101,4 +138,5 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
         writer = csv.writer(dat, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
         writer.writerow(results_files)
         writer.writerow(mrr_scores)
-    return plot_data_file, plot_dir, num_ppkt
+        
+    return plot_data_file, plot_dir, num_ppkt, topn_file
