@@ -19,7 +19,7 @@ class MalcoRunner(PhEvalRunner):
     config_file: Path
     version: str
     # Declare a tuple (immutable!) of languages
-    languages = ("en", "es", "nl", "it", "de")
+    languages = ["en"]
 
     def prepare(self):
         """
@@ -62,6 +62,6 @@ class MalcoRunner(PhEvalRunner):
             output_dir=self.output_dir,
             prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
             correct_answer_file=correct_answer_file)
-        
+
         if print_plot:
             make_plots(plot_data_file, plot_dir, self.languages, num_ppkt, topn_file)
