@@ -32,8 +32,5 @@ def run(testdata_dir: Path,
         max_workers: Maximum number of worker processes to use.
     """
 
-    if max_workers is None:
-        max_workers = multiprocessing.cpu_count()
-
-    with multiprocessing.Pool(processes=max_workers) as pool:
-        pool.starmap(call_ontogpt, [(lang, raw_results_dir, input_dir) for lang in langs])
+    for lang in langs:
+        call_ontogpt(lang, raw_results_dir, input_dir)

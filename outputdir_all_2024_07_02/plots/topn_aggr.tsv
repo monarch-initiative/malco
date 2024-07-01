@@ -1,0 +1,6 @@
+lang	Rank_in	counts
+en	top1	128
+en	top3	192
+en	top5	214
+en	top10	225
+en	not_found	533

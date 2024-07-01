@@ -1,4 +1,4 @@
-import os 
+import os
 import csv
 from pathlib import Path
 from datetime import datetime
@@ -21,10 +21,10 @@ def mondo_adapter() -> OboGraphInterface:
     Returns:
         Adapter: The adapter.
     """
-    return get_adapter("sqlite:obo:mondo") 
+    return get_adapter("sqlite:obo:mondo")
 
 def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
-    # Read in results TSVs from self.output_dir that match glob results*tsv 
+    # Read in results TSVs from self.output_dir that match glob results*tsv
     results_data = []
     results_files = []
     num_ppkt = 0
@@ -86,19 +86,19 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
             # Calculate MRR for this file
             mrr = df.groupby("label")["reciprocal_rank"].max().mean()
             mrr_scores.append(mrr)
-            
+
             # Calculate top<n> of each rank
             rank_df.loc[i,"lang"] = results_files[i][0:2]
-            
-            ppkts = df.groupby("label")[["rank","is_correct"]] 
+
+            ppkts = df.groupby("label")[["rank","is_correct"]]
             index_matches = df.index[df['is_correct']]
-          
+
             # for each group
             for ppkt in ppkts:
-                # is there a true? ppkt is tuple ("filename", dataframe) --> ppkt[1] is a dataframe 
+                # is there a true? ppkt is tuple ("filename", dataframe) --> ppkt[1] is a dataframe
                 if not any(ppkt[1]["is_correct"]):
                     # no  --> increase nf = "not found"
-                    rank_df.loc[i,"nf"] += 1       
+                    rank_df.loc[i,"nf"] += 1
                 else:
                    # yes --> what's it rank? It's <j>
                    jind = ppkt[1].index[ppkt[1]['is_correct']]
@@ -110,8 +110,8 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
                        # increase n10p
                        rank_df.loc[i,"n10p"] += 1
 
-            
-            
+
+
             # Write cache charatcteristics to file
             cf.write(results_files[i])
             cf.write('\nscore_grounded_result cache info:\n')
@@ -121,22 +121,27 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
             cf.write('\n\n')
             i = i + 1
 
-    
+
     topn_file = output_dir / "plots/topn_result.tsv"
+    # TODO: this above  shouldn't be hardcoded^^
+    os.makedirs(os.path.dirname(output_dir / "plots/"), exist_ok=True)
     # use rank_df.to_csv() or something similar
+    # make dir if it doesn't exist
+
+    plot_dir = output_dir / "plots"
+    plot_dir.mkdir(exist_ok=True)
+
     rank_df.to_csv(topn_file, sep='\t', index=False)
 
 
     print("MRR scores are:\n")
     print(mrr_scores)
-    plot_dir = output_dir / "plots"
-    plot_dir.mkdir(exist_ok=True)
     plot_data_file = plot_dir / "plotting_data.tsv"
 
-    # write out results for plotting 
+    # write out results for plotting
     with plot_data_file.open('w', newline = '') as dat:
         writer = csv.writer(dat, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
         writer.writerow(results_files)
         writer.writerow(mrr_scores)
-        
+
     return plot_data_file, plot_dir, num_ppkt, topn_file
