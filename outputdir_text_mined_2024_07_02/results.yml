@@ -1,0 +1,6 @@
+tool: template
+tool_version: null
+config: data/text_mined
+run_timestamp: 1719933692.657127
+corpus: /tests
+tool_specific_configuration_options: null

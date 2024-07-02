@@ -38,13 +38,16 @@ def make_hits_at_n_plot_from_data_file(plot_data_file):
 
 
 if __name__ == "__main__":
-    # if len(sys.argv) != 2:
-    #     print("Usage: python plot_hits_at_n.py <plot_data_file>")
-    #     sys.exit(1)
+    if len(sys.argv) != 2:
+        print("Usage: python plot_hits_at_n.py <plot_data_file>")
+        sys.exit(1)
 
     # Path to the data file from the first argument
-    # plot_data_file = sys.argv[1]
-    plot_data_file = "../../../outputdir_all_2024_07_02/plots/topn_result.tsv"
+    plot_data_file = sys.argv[1]
+    # figure 1a:
+    # plot_data_file = "outputdir_all_2024_07_02/plots/topn_result.tsv"
+    # figure 1b:
+    # plot_data_file = "outputdir_text_mined_2024_07_02/plots/topn_result.tsv"
 
     # Call the function
     make_hits_at_n_plot_from_data_file(plot_data_file)
