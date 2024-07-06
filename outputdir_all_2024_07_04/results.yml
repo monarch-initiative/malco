@@ -1,0 +1,6 @@
+tool: template
+tool_version: null
+config: data/all
+run_timestamp: 1720239276.099668
+corpus: /tests
+tool_specific_configuration_options: null
