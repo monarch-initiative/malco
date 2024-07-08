@@ -1,8 +1,0 @@
-Timestamp: 20240701-123132
-
-en/results.tsv
-score_grounded_result cache info:
-CacheInfo(hits=2645, misses=2630, maxsize=4096, currsize=2630)
-omim_mappings cache info:
-CacheInfo(hits=26869, misses=5625, maxsize=16384, currsize=5625)
-
