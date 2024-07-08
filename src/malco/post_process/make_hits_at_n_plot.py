@@ -39,7 +39,7 @@ def make_combined_hits_at_n_plot(file1, file2):
     plt.xlabel("")
     plt.ylabel("Percent of cases")
     plt.title("Top-k accuracy of GPT")
-    plt.ylim(0, 100)  # Adjust this as needed
+    plt.ylim(0, 60)  # Adjust this as needed
     plt.legend(title="")
     plt.show()
 
