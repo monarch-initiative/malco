@@ -2,6 +2,7 @@ library(ggplot2)
 library(readr)
 library(dplyr)
 library(tidyr)
+library(ggsci)  # Make sure to load the ggsci package
 
 make_combined_hits_at_n_plot <- function(file1, file2, output_file) {
   # Read the data from both files
@@ -35,11 +36,12 @@ make_combined_hits_at_n_plot <- function(file1, file2, output_file) {
   # Create the plot
   p <- ggplot(plot_data, aes(x = Hits, y = Percentage, fill = Dataset)) +
     geom_bar(stat = "identity", position = position_dodge()) +
+    scale_fill_jama() +  # Apply JAMA color theme
     labs(x = "", y = "Percent of cases", title = "") +
     ylim(0, 60) +  # Adjust this as needed
     theme_minimal() +
     theme(
-      legend.position = c(0.6, 0.9),  # Position the legend inside the plot, adjusted to the left
+      legend.position = c(0.75, 0.9),  # Position the legend inside the plot, adjusted to the left
       legend.title = element_blank(),
       legend.text = element_text(size = 14),  # Increase legend text size
       axis.text = element_text(size = 18),  # Increased font size
