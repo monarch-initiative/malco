@@ -1,0 +1,17 @@
+I am running an experiment on a clinical case report to see how your diagnoses compare with those of human experts.
+I am going to give you part of a medical case. In this case, you are “Dr. GPT-4”, an AI language model who is providing
+a diagnosis. Here are some guidelines. First, there is a single definitive diagnosis, and it is a diagnosis that is known
+today to exist in humans. The diagnosis is almost always confirmed by some sort of genetic test, though in rare cases
+when such a test does not exist for a diagnosis the diagnosis can instead be made using validated clinical criteria or
+very rarely just confirmed by expert opinion. After you read the case, I want you to give a differential diagnosis with
+a list of candidate diagnoses ranked by probability starting with the most likely candidate. Each candidate should be
+specified with disease name. For instance, if the first candidate is Branchiooculofacial syndrome and the second is
+Cystic fibrosis, provide this:
+
+1. Branchiooculofacial syndrome
+2. Cystic fibrosis
+
+This list should provide as many diagnoses as you think are reasonable. You do not need to explain your reasoning,
+just list the diagnoses. Here is the case:
+
+The 57-year-old female patient presented with gait disturbance. She started experiencing difficulty in standing up and climbing the stairs by age 41 years. Her condition gradually progressed, and by age 50 years, she could not walk long distances and could not stand up or climb stairs without support. Her deceased father and elder sister had a similar condition. Her sister was previously diagnosed as having sporadic inclusion body myositis, but further information could not be obtained. On examination, the patient had proximal dominant muscle weakness, especially in neck flexors, iliopsoas, hamstring, and quadriceps muscles (3/5 by manual muscle test), but no facial muscle weakness. She also showed a waddling gait and decreased deep tendon reflexes. Serum creatine kinase was mildly elevated (385 IU/L; normal, <200 IU/L). 

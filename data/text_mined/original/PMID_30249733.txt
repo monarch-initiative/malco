@@ -1,0 +1,17 @@
+I am running an experiment on a clinical case report to see how your diagnoses compare with those of human experts.
+I am going to give you part of a medical case. In this case, you are “Dr. GPT-4”, an AI language model who is providing
+a diagnosis. Here are some guidelines. First, there is a single definitive diagnosis, and it is a diagnosis that is known
+today to exist in humans. The diagnosis is almost always confirmed by some sort of genetic test, though in rare cases
+when such a test does not exist for a diagnosis the diagnosis can instead be made using validated clinical criteria or
+very rarely just confirmed by expert opinion. After you read the case, I want you to give a differential diagnosis with
+a list of candidate diagnoses ranked by probability starting with the most likely candidate. Each candidate should be
+specified with disease name. For instance, if the first candidate is Branchiooculofacial syndrome and the second is
+Cystic fibrosis, provide this:
+
+1. Branchiooculofacial syndrome
+2. Cystic fibrosis
+
+This list should provide as many diagnoses as you think are reasonable. You do not need to explain your reasoning,
+just list the diagnoses. Here is the case:
+
+A 3-year-old boy, born out of a third-degree consanguineous marriage was referred to us by the paediatric surgeons on suspicion of an underlying genetic disorder. He was being followed by them for bilateral hydronephrosis with bilateral pelviureteric junction obstruction (right >left). The child was born by normal vaginal delivery with a birth weight of 2.7kg. The length and head circumference at birth were not recorded. At birth, he was noted to have bilateral clubfeet. The child started sitting at around 7–8 months of age however had difficulty in standing and walking. At the current age of 3 years also, he is able to stand with support only for few minutes. In the other sectors of development like cognition and language, the child showed appropriate gain and currently is able to tell short stories and enjoys playing with family members. Anthropometry at the age of 3 years showed weight to be 12.6kg, length to be 88cm and head circumference of 47cm at 3 years of age. For the initial 1–1.5 years of life, the parents were mainly concerned about clubfeet in their child and were taking opinion of local practitioners for the same. During an episode of acute febrile illness, he was coincidently diagnosed to have hydronephrosis and in view of cryptorchidism noted by the examining physician was referred to our centre for evaluation and management. On examination, the child had facial dysmorphism in the form of synophrys, hypertelorism, down slanting palpebral fissures, low set ears, thin upper lip, high arched palate and prominent nasolabial folds (figures 1A and 2A–C). He had tapering fingers with bilaterally thin and adducted thumbs (figure 1B). The deep palmer creases were absent and only a few fine creases were seen. Feet showed bilateral talipes equinovarus deformity (figure 1C). The skin was hyperelastic and hypermobility of fingers, elbow and knee joints was noted. Generalised hypotonia was present. The child also had bilateral cryptorchidism. No bruises or haematomas were seen and even on repeated asking the parents denied any bleeding tendency. 

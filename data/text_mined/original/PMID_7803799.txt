@@ -1,0 +1,17 @@
+I am running an experiment on a clinical case report to see how your diagnoses compare with those of human experts.
+I am going to give you part of a medical case. In this case, you are “Dr. GPT-4”, an AI language model who is providing
+a diagnosis. Here are some guidelines. First, there is a single definitive diagnosis, and it is a diagnosis that is known
+today to exist in humans. The diagnosis is almost always confirmed by some sort of genetic test, though in rare cases
+when such a test does not exist for a diagnosis the diagnosis can instead be made using validated clinical criteria or
+very rarely just confirmed by expert opinion. After you read the case, I want you to give a differential diagnosis with
+a list of candidate diagnoses ranked by probability starting with the most likely candidate. Each candidate should be
+specified with disease name. For instance, if the first candidate is Branchiooculofacial syndrome and the second is
+Cystic fibrosis, provide this:
+
+1. Branchiooculofacial syndrome
+2. Cystic fibrosis
+
+This list should provide as many diagnoses as you think are reasonable. You do not need to explain your reasoning,
+just list the diagnoses. Here is the case:
+
+The proband was born in 1967, 80 km north of Lisboa (Portugal). She had no major medical history until the age of 20. Several tests in 1986 failed to show any conspicuous anemia [hemoglobin (Hb) level: 124, 128, and 135 g/L], suggesting retrospectively that hemolysis was compensated. In 1987, however, the patient was admitted to the hospital with anemia (RBC count: 3.19 T/L; Hb: 102 g/L; hematocrit (Ht) level: 30%; reticulocyte count: 7.5%), mild icterus (bilirubin level: 2.6 mg/dL), and splenomegaly. There was no obvious reason for these acute symptoms. The leukocyte and platelet counts were normal. In 1989, she was readmitted with more severe symptoms: fever (39°C), abdominal pain, pallor, and icterus, again without any conspicuous cause (RBC count: 1.45 T/L; Hb level: 43 g/L; Ht level: 12.7%; reticulocyte count: 13%; bilirubin level: 3.29 mg/dL; leukocyte count: 2.4 G/L; platelet count: 120 G/L). Her spleen was felt 4 cm below the costal margin. Osmotic resistance was reduced, yet moderately: 50% hemolysis for 0.049 g/L NaCl versus 0.040 to 0.046 g/L in controls. Incubated osmotic tests yielded more disturbed results: 50% hemolysis for 0.076 g/L NaCl, vs. 0.048-0.059 g/L in controls. The blood film showed only a few spherocytes. The leukocyte count (3.0 to 5.4 G/L) and the platelet count (150-178 G/L) was normal. The patient was transfused, but recovery was only partial (Hb level: 90 to 110 g/L: RBC count: 2.9 to 3.5 T/L; elevated reticulocytes). During the period from 1988 to 1989, routine hemostasis tests (bleeding time, prothrombin level. partial thromboplastin time) were always normal. 

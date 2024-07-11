@@ -1,0 +1,17 @@
+I am running an experiment on a clinical case report to see how your diagnoses compare with those of human experts.
+I am going to give you part of a medical case. In this case, you are “Dr. GPT-4”, an AI language model who is providing
+a diagnosis. Here are some guidelines. First, there is a single definitive diagnosis, and it is a diagnosis that is known
+today to exist in humans. The diagnosis is almost always confirmed by some sort of genetic test, though in rare cases
+when such a test does not exist for a diagnosis the diagnosis can instead be made using validated clinical criteria or
+very rarely just confirmed by expert opinion. After you read the case, I want you to give a differential diagnosis with
+a list of candidate diagnoses ranked by probability starting with the most likely candidate. Each candidate should be
+specified with disease name. For instance, if the first candidate is Branchiooculofacial syndrome and the second is
+Cystic fibrosis, provide this:
+
+1. Branchiooculofacial syndrome
+2. Cystic fibrosis
+
+This list should provide as many diagnoses as you think are reasonable. You do not need to explain your reasoning,
+just list the diagnoses. Here is the case:
+
+The patient was the first child of healthy non-consanguineous Chinese parents. He was born at term with a birth weight of 3.5 kg and a height of 50 cm. His development milestone appeared normal before the age of approximately 1.5 years, by which time he had learnt to walk. Since then the boy had complained of pain in lower extremities at times. His growth rate had been lower than normal since age 2 years. The patient was first referred for genetics and endocrine evaluation for his short stature at the age of 2.75 years. He was with a height of 85.7 cm (< 3th centile; − 2.02 SD), a weight of 13 kg (25–50th centile; − 0.17 SD), and a sitting-height of 53 cm (− 1.48 SD). Sitting height/leg length ratio was 1.621 (+ 1.51 SD). Disproportionate short-limb short stature was noted. Waddling gait and genu varus were obvious. Examination of his upper limbs showed restricted extension at the elbows and moderate brachydactyly. No facial dysmorphism or other positive signs were noted. There is no family history. Laboratory tests including mucopolysaccharide analysis of urine and thyroid function tests were normal. Radiographs revealed features suggestive of pseudoachondroplasia including short tubular bones with irregular epiphyses and metaphyses, small capital femoral epiphyses, brachydactyly, and anterior tonguing or beaking of the vertebral bodies (Figs. 1A–D). And the skull X-ray was normal (figure not shown). Fig. 1. Radiographic findings in the 2.75-year-old patient. (A) The pelvic showed: abnormal acetabular with flat roof and irregular margins; small capital femoral epiphyses and irregular, flared metaphyseal borders. (B) The hand showed: shortening and broadening of phalanges and metacarpals with irregular metaphyses; obvious delay in carpal ossification. (C) The femoral and tibias showed widened, irregular and flared metaphyseal borders. (D) Characteristic anterior tonguing or beaking of the vertebral bodies was displayed. 

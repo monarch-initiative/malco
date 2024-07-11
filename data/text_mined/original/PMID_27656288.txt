@@ -1,0 +1,17 @@
+I am running an experiment on a clinical case report to see how your diagnoses compare with those of human experts.
+I am going to give you part of a medical case. In this case, you are “Dr. GPT-4”, an AI language model who is providing
+a diagnosis. Here are some guidelines. First, there is a single definitive diagnosis, and it is a diagnosis that is known
+today to exist in humans. The diagnosis is almost always confirmed by some sort of genetic test, though in rare cases
+when such a test does not exist for a diagnosis the diagnosis can instead be made using validated clinical criteria or
+very rarely just confirmed by expert opinion. After you read the case, I want you to give a differential diagnosis with
+a list of candidate diagnoses ranked by probability starting with the most likely candidate. Each candidate should be
+specified with disease name. For instance, if the first candidate is Branchiooculofacial syndrome and the second is
+Cystic fibrosis, provide this:
+
+1. Branchiooculofacial syndrome
+2. Cystic fibrosis
+
+This list should provide as many diagnoses as you think are reasonable. You do not need to explain your reasoning,
+just list the diagnoses. Here is the case:
+
+The patient is the fifth child of healthy, non-consanguineous parents. After an uneventful pregnancy, he was born at 35 weeks gestation following the premature rupture of the fetal membranes. His birth weight was 1,924 g (−1.3 SD). Because of an unknown cause, perforation of the terminal ileum occurred at the age of 2 days, and an ileostomy was performed. After follow-up with central venous nutrition and tube feeding, closure of the ileostomy was performed at the age of 52 days, and he left the hospital at the age of 73 days. He achieved head control at the age of 9 months and walked independently at the age of 18 months. At the age of 1 year, the patient was diagnosed with hypotonia and kyphoscoliosis, and treated with a brace at another clinic. His kyphoscoliosis was non-responsive to the brace and increased in severity over time. At the age of 9 years, the patient was suspected to have a connective tissue disorder because he showed muscle weakness and joint hypermobility. Therefore, he was readmitted to our hospital for diagnosis. Clinical examination at the age of 9 years showed a boy with a height of 117.4 cm (–2.3 SD) and weight of 19.9 kg (–1.5 SD). He had joint hypermobility (Beighton score=6), mild hyperextensible skin (~1.5 cm on the volar surface of the forearm) and severe kyphoscoliosis (Figure 1), but did not have widened atrophic scars. In the minor diagnostic criteria for cEDS, smooth velvety skin, muscle hypotonia and delayed gross motor development were observed in addition to the manifestations of tissue extensibility and fragility (perforation of the terminal ileum at the age of 2 days). No abnormality was revealed during physical examination of the chest and abdomen or during an ophthalmological evaluation. Echocardiography and abdominal ultrasound were normal. 

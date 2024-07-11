@@ -1,0 +1,17 @@
+I am running an experiment on a clinical case report to see how your diagnoses compare with those of human experts.
+I am going to give you part of a medical case. In this case, you are “Dr. GPT-4”, an AI language model who is providing
+a diagnosis. Here are some guidelines. First, there is a single definitive diagnosis, and it is a diagnosis that is known
+today to exist in humans. The diagnosis is almost always confirmed by some sort of genetic test, though in rare cases
+when such a test does not exist for a diagnosis the diagnosis can instead be made using validated clinical criteria or
+very rarely just confirmed by expert opinion. After you read the case, I want you to give a differential diagnosis with
+a list of candidate diagnoses ranked by probability starting with the most likely candidate. Each candidate should be
+specified with disease name. For instance, if the first candidate is Branchiooculofacial syndrome and the second is
+Cystic fibrosis, provide this:
+
+1. Branchiooculofacial syndrome
+2. Cystic fibrosis
+
+This list should provide as many diagnoses as you think are reasonable. You do not need to explain your reasoning,
+just list the diagnoses. Here is the case:
+
+A sixteen-year-old male patient was brought to our emergency room with the complaints of pain and swelling in his upper back, in which a biopsy had been performed two months before. At the age of 9, the patient developed tender stiffness of his shoulders and neck. Over the next 4 years, he experienced multiple similar swellings on the upper back; subsequently, the movement of the shoulders and neck was limited, and masses grew progressively. The patient went to the specialists at some local hospitals for examination and treatment, and they managed the patient without making a confirmative diagnosis. Two months before, one of these doctors arranged a biopsy for the patient, but the results of the pathological examination only revealed that the mass was heterotopic ossification, the cause of which was unclear.  The physical examination presented serious stiffness with a tiny range of motion in the patient’s neck and shoulders; multiple bony masses with irregular sizes on the neck, back and buttocks; bilateral halluces characterized by hallux valgus deformity with macrodactyly, which was more serious on the left side; and fused interphalangeal joints of both halluces. The biopsy site was marked tenderness and swelling. The imaging examinations showed widespread heterotopic ossification in the cervical spine, shoulder girdles and thorax (Fig. 1). As indicated by the radiograph of the cervical spine, the bony bridge formation was visible in the nuchal ligament, which may have predominantly contributed to the neck ankylosis (Fig. 2). The computerized tomography (CT) scan found several initial heterotopic ossification lesions in the pectoralis major and serratus anterior (Fig. 3). Dorso-plantar radiograph indicated that the bilateral feet developed hallux valgus and fusion of the halluces’ interphalangeal joint (Fig. 4). As indicated by the laboratory blood tests, alkaline phosphatase was 276 (45–125) U/L, while serum calcium, phosphorus, hemoglobin, erythrocyte sedimentation rate, C-reactive protein, liver enzymes, urea, creatinine and parathyroid hormone were all within normal limits. From the other hospital, the biopsy section revealed the features of inflammatory fibroproliferative and osteogenic neoplasm. 

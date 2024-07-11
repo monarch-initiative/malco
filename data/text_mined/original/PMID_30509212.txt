@@ -1,0 +1,17 @@
+I am running an experiment on a clinical case report to see how your diagnoses compare with those of human experts.
+I am going to give you part of a medical case. In this case, you are “Dr. GPT-4”, an AI language model who is providing
+a diagnosis. Here are some guidelines. First, there is a single definitive diagnosis, and it is a diagnosis that is known
+today to exist in humans. The diagnosis is almost always confirmed by some sort of genetic test, though in rare cases
+when such a test does not exist for a diagnosis the diagnosis can instead be made using validated clinical criteria or
+very rarely just confirmed by expert opinion. After you read the case, I want you to give a differential diagnosis with
+a list of candidate diagnoses ranked by probability starting with the most likely candidate. Each candidate should be
+specified with disease name. For instance, if the first candidate is Branchiooculofacial syndrome and the second is
+Cystic fibrosis, provide this:
+
+1. Branchiooculofacial syndrome
+2. Cystic fibrosis
+
+This list should provide as many diagnoses as you think are reasonable. You do not need to explain your reasoning,
+just list the diagnoses. Here is the case:
+
+A 2 months and 13 days old male was hospitalized in the neonatology department of our hospital for postnatal growth retardation on 20 February, 2017. The infant was spontaneous breech delivery at the 36th week plus 1 day of gestation with a weight of 2.8 kg and head circumference of 31 cm. The Apgar scores of the infant all were 8 at 1, 5, and 10 min. The infant was the third child of a 29-year-old mother who had fewer dysmorphic features and had two unaffected older sisters. Before the infant was born, magnetic resonance imaging (MRI) results showed that enlarged lateral ventricles (Fig. 1), this indicated congenital hydrocephalus. After admission to our hospital, physical examination showed that the patient’s growth and development level was of below the normal range 3rd centiles at height (~52 cm), weight (~2.9 kg) and head circumference (~33.5 cm) in accordance with the new WHO (2006) Child growth standards [13], suggesting postnatal onset of growth retardation. The patient had an inability to lift the head and weak crying. The patient couldn’t amuse by physician, and couldn’t accomplish the tests of audio and visual tracking. However, The patient presented with recognizable facial features, including sparse eyebrows (Fig. 2a), a depressed nasal tip (Fig. 2b), long palpebral fissures with eversion of the lateral part of the lower eyelid (Fig. 2c), large prominent ears with low set ears (Fig. 2d), micrognathia (Fig. 2e), gingival thickening and a high palate with cleft (Fig. 2f). In addition, head computed tomography (CT) scan revealed hydrocephalus (Fig. 3), ultrasonography showed developmental dysplasia of hip (Fig. 4). The results of cardiopulmonary and hepatolienal examination were normal. The patient had hypotonia, no pathological reflex. Liver and kidney functions, thyroid function, blood counts, electrolytes were normal. 

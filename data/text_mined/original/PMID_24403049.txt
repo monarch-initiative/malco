@@ -1,0 +1,17 @@
+I am running an experiment on a clinical case report to see how your diagnoses compare with those of human experts.
+I am going to give you part of a medical case. In this case, you are “Dr. GPT-4”, an AI language model who is providing
+a diagnosis. Here are some guidelines. First, there is a single definitive diagnosis, and it is a diagnosis that is known
+today to exist in humans. The diagnosis is almost always confirmed by some sort of genetic test, though in rare cases
+when such a test does not exist for a diagnosis the diagnosis can instead be made using validated clinical criteria or
+very rarely just confirmed by expert opinion. After you read the case, I want you to give a differential diagnosis with
+a list of candidate diagnoses ranked by probability starting with the most likely candidate. Each candidate should be
+specified with disease name. For instance, if the first candidate is Branchiooculofacial syndrome and the second is
+Cystic fibrosis, provide this:
+
+1. Branchiooculofacial syndrome
+2. Cystic fibrosis
+
+This list should provide as many diagnoses as you think are reasonable. You do not need to explain your reasoning,
+just list the diagnoses. Here is the case:
+
+Our patients are two brothers, now 21 (Proband 1) and 19 (Proband 2) years of age, born to non-consanguineous parents of British heritage with unremarkable family history. The pregnancies and births were uncomplicated. Proband 1 had a birth weight of 2.5 kg (<2nd %) and length of 49.5 cm (60th %), and Proband 2 had a birth weight of 3.0 kg (25th %) and length of 51 cm (70th %). Their 13-year-old sister has had normal growth and development. The brothers have global developmental delay; however, expressive language and cognition are the more significant challenges. Proband 1 currently has an ∼150 word vocabulary, speaking in three word phrases with echolalia; he has anxiety and is on the autism/pervasive developmental disorder spectrum. Proband 2 has less global delays, milder autistic features and obsessive–compulsive disorder. Their past medical history is significant for multiple episodes of otitis media as infants which responded to oral antimicrobial therapy. Neither had placement of tympanostomy drainage tubes, but Proband 2 had an adenoidectomy secondary to episodic sinus infections. Proband 1 had a hospitalization at age 12 weeks for bronchiolitis and at age 10 months for a febrile seizure, but otherwise neither brother had any serious infections. Comprehensive endocrine and metabolic evaluation revealed normal serum IGF-I and IGFBP-3 levels, plasma amino acids, urine amino acids and organic acids, urine sialic acid, mucopolysaccharides and urine oligosaccharides. Chromosomal microarrays showed no copy number variants or areas with loss of heterozygosity. Notably, white blood cell counts and absolute neutrophil counts were within the normal range on two occasions (Supplementary Material, Table S1) and both brothers had the O+ blood type. Phenotypically, both brothers have short stature with heights of −2.8 and −3.3 standard deviations, coarse facial features with a bulbous nose, widow's peak, small hands and feet with brachydactyly and persistent fetal finger pads (Fig. 1). 

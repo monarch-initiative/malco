@@ -1,0 +1,17 @@
+I am running an experiment on a clinical case report to see how your diagnoses compare with those of human experts.
+I am going to give you part of a medical case. In this case, you are “Dr. GPT-4”, an AI language model who is providing
+a diagnosis. Here are some guidelines. First, there is a single definitive diagnosis, and it is a diagnosis that is known
+today to exist in humans. The diagnosis is almost always confirmed by some sort of genetic test, though in rare cases
+when such a test does not exist for a diagnosis the diagnosis can instead be made using validated clinical criteria or
+very rarely just confirmed by expert opinion. After you read the case, I want you to give a differential diagnosis with
+a list of candidate diagnoses ranked by probability starting with the most likely candidate. Each candidate should be
+specified with disease name. For instance, if the first candidate is Branchiooculofacial syndrome and the second is
+Cystic fibrosis, provide this:
+
+1. Branchiooculofacial syndrome
+2. Cystic fibrosis
+
+This list should provide as many diagnoses as you think are reasonable. You do not need to explain your reasoning,
+just list the diagnoses. Here is the case:
+
+A 39-year-old Caucasian female was referred to our outpatient unit with a 10-year history of back and bilateral hip pain, chronic easy bruising, episodes of palpitations, dizziness, and light-headedness. Due to the COVID-19 pandemic restrictions, and the temporal association with the suspension of her global posture re-education (GPR) plan, she experienced additional pain in both wrists, proximal interphalangeal joints, and her left shoulder. Three months prior to our appointment she had a respiratory infection, with delayed resolution. Due to this infection, a computed tomography (CT) was carried out, which incidentally revealed a distal aorta artery dissection. Past medical history included a Senning repair due to transposition of the great arteries at 18 months old, hypertension, asthma, allergic rhinitis, scoliosis, repeated respiratory infections, two pregnancies, and one abortion. Current medication included mirtazapine 15 mg, montelukast 10 mg, lisinopril 2.5 mg. No use of tobacco, alcohol, or streets drugs was reported. Physical examination revealed a body height of 167 cm, joint hypermobility, with a Beighton score of four out of nine, bilateral acromioclavicular joint area tenderness, an atrophic cardiac surgery chest scar, and a systolic murmur – previously known. Based on patient history and clinical findings, a diagnosis of joint hypermobility syndrome was made as per the Brighton criteria. An electrocardiogram showed findings of right ventricular hypertrophy with overload pattern; an echocardiogram revealed Senning’s procedure post-surgical findings and normal left ventricular function. Complete blood count showed a mild thrombocytopenia (127,000/mL). Coagulation tests were unremarkable, as was the extensive immunology workup (Table 1). Axial CT showed no signs of inflammatory spondyloarthropathy, and MRI excluded sacroiliitis. Thoracic and abdominal CT angiography revealed distal aortic dissection extended through the left common iliac artery. 

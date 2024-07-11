@@ -1,0 +1,17 @@
+I am running an experiment on a clinical case report to see how your diagnoses compare with those of human experts.
+I am going to give you part of a medical case. In this case, you are “Dr. GPT-4”, an AI language model who is providing
+a diagnosis. Here are some guidelines. First, there is a single definitive diagnosis, and it is a diagnosis that is known
+today to exist in humans. The diagnosis is almost always confirmed by some sort of genetic test, though in rare cases
+when such a test does not exist for a diagnosis the diagnosis can instead be made using validated clinical criteria or
+very rarely just confirmed by expert opinion. After you read the case, I want you to give a differential diagnosis with
+a list of candidate diagnoses ranked by probability starting with the most likely candidate. Each candidate should be
+specified with disease name. For instance, if the first candidate is Branchiooculofacial syndrome and the second is
+Cystic fibrosis, provide this:
+
+1. Branchiooculofacial syndrome
+2. Cystic fibrosis
+
+This list should provide as many diagnoses as you think are reasonable. You do not need to explain your reasoning,
+just list the diagnoses. Here is the case:
+
+Case 1 SMS324 is an 18-year-old male who was delivered at 38 weeks gestation following premature labor and antepartum haemorrhage. His birth weight was 2,750 g (10th-50th centile). While his neonatal period was complicated by gastroesophageal reflux and failure to thrive, he was admitted to the hospital at 1 year of age for being considerably overweight, with fat folds on his arms and legs. He spoke his first words at 6 months and walked at 12 months. His medical history includes two episodes of severe asthma, petit mal seizures between the ages of 5-10 y and three spontaneous pneumothoraces (SP). He had a square shaped face, upslanting palpebral fissures, down turned mouth, inverted upper lip, and synophrys (Fig. 1A). Other physical anomalies included brachydactyly, bilateral fifth finger clinodactyly with a small middle phalanx of his fifth fingers, and pes planus. At 16 years of age, height was 163 cm (< 3rd centile), head circumference was 54 cm, and he presented with relative truncal obesity. Behaviorally, SMS324 exhibited head-banging and rage attacks starting at age 3. At age 16, he continues to have recurrent episodes of rage attacks, anxiety, and obsessional behavior. He has never slept through the night, with recurrent 3 a.m. wakenings. Apart from finger chewing, he exhibits no self-injurious behaviors, self hugging, onychotillomania or polyembolokomania. He has had a persistent history of sleep disturbance. A formal developmental assessment indicated a mild global developmental delay. He was initially diagnosed with attention deficit disorder; however, a later assessment indicated this diagnosis was incorrect. He was initially mainstreamed in a regular classroom at school but at age 16 now functions in an OI classroom with supervision. 

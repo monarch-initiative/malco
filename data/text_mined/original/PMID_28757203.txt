@@ -1,0 +1,17 @@
+I am running an experiment on a clinical case report to see how your diagnoses compare with those of human experts.
+I am going to give you part of a medical case. In this case, you are “Dr. GPT-4”, an AI language model who is providing
+a diagnosis. Here are some guidelines. First, there is a single definitive diagnosis, and it is a diagnosis that is known
+today to exist in humans. The diagnosis is almost always confirmed by some sort of genetic test, though in rare cases
+when such a test does not exist for a diagnosis the diagnosis can instead be made using validated clinical criteria or
+very rarely just confirmed by expert opinion. After you read the case, I want you to give a differential diagnosis with
+a list of candidate diagnoses ranked by probability starting with the most likely candidate. Each candidate should be
+specified with disease name. For instance, if the first candidate is Branchiooculofacial syndrome and the second is
+Cystic fibrosis, provide this:
+
+1. Branchiooculofacial syndrome
+2. Cystic fibrosis
+
+This list should provide as many diagnoses as you think are reasonable. You do not need to explain your reasoning,
+just list the diagnoses. Here is the case:
+
+Individual 1 (P1), a boy, was the first child of non-consanguineous parents of French (mother) and Ivory Coast (father) origin. He was born after an uneventful pregnancy and spontaneous delivery at term with normal birth parameters (body weight 3,750 g, length 51 cm, head circumference 35 cm). Apgar scores were 9/10/10. From birth on, he presented with truncal hypotonia, spastic tetraparesis, and dystonia. Brain MRI showed marked supra-tentorial cortical atrophy with ventricular dilatation as well as bifrontal white matter abnormalities and delayed myelination (Figure 1Amiddle). MRS spectroscopy with a long TE (144) showed a lactate peak (Figure 1B). This clinical and radiological presentation led us to suspect a mitochondrial disease. At age 2.5 years, the affected individual was bed- and wheelchair-bound with no head control. He could neither sit unaided nor speak or understand simple orders. He was otherwise fully conscious and alert, and he could smile at times and follow with his eyes. His weight was -2.5 SD, his length was at the median, and his head circumference (HC) was -4 SD. Major swallowing difficulties led to gastrostomy. At the age of 3 years, he developed complex epilepsy treated by oxcarbazepine (Trileptal®), clobazam (Urbanyl®), and topiramate (Epitomax®). Electroencephalography at the age of 7 years showed in the awake state, an absence of occipital alpha rhythm, polyrhythmic background activity with diffuse alpha, theta and rare delta rhythms, multifocal spikes and sharp waves, sometimes in bursts or rhythmic sequences, with right posterior predominance (Figure S3A). Cardiac ultrasonography, audiological and ophthalmological examination were normal. At the age of 7 years and 9 months, the ventricular dilatation and sub-tentorial cortical atrophy were increased. No episodes of metabolic decompensation have been documented. 
