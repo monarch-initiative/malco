@@ -61,7 +61,8 @@ class MalcoRunner(PhEvalRunner):
         plot_data_file, plot_dir, num_ppkt, topn_file = compute_mrr(
             output_dir=self.output_dir,
             prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
-            correct_answer_file=correct_answer_file)
+            correct_answer_file=correct_answer_file,
+            raw_results_dir=self.raw_results_dir)
         
         if print_plot:
             make_plots(plot_data_file, plot_dir, self.languages, num_ppkt, topn_file)
