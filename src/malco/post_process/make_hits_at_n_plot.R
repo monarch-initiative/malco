@@ -34,7 +34,7 @@ make_combined_hits_at_n_plot <- function(file1, mrr_data, output_file) {
   )
 
   mrr_plot_data <- tibble(
-    Metric = "MRR",
+    Metric = "Mean reciprocal rank",
     Value = mrr_value
   )
 
@@ -56,7 +56,7 @@ make_combined_hits_at_n_plot <- function(file1, mrr_data, output_file) {
   p2 <- ggplot(mrr_plot_data, aes(x = Metric, y = Value, fill = Metric)) +
     geom_bar(stat = "identity") +
     scale_fill_jama() +  # Apply JAMA color theme
-    labs(x = "", y = "MRR Value", title = "") +
+    labs(x = "", y = "", title = "") +
     ylim(0, 1) +  # MRR values are typically between 0 and 1
     theme_minimal() +
     theme(
