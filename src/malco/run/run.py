@@ -6,9 +6,9 @@ import subprocess
 def call_ontogpt(lang, raw_results_dir, input_dir):
     command = (
         f"ontogpt -v run-multilingual-analysis "
-        f"--output={raw_results_dir}/{lang}/results.yaml "  # save raw OntoGPT output
-        f"{input_dir}/prompts/{lang}/ "
-        f"{raw_results_dir}/{lang}/differentials_by_file/"
+        f"{input_dir}/prompts/{lang}/ "  # input_data_dir argument
+        f"{raw_results_dir}/{lang}/differentials_by_file/ "  # output_directory argument
+        f"--output={raw_results_dir}/{lang}/results.yaml"  # --output option
     )
     print(f"Running command: {command}")
     process = subprocess.Popen(command, shell=True)
@@ -32,8 +32,5 @@ def run(testdata_dir: Path,
         max_workers: Maximum number of worker processes to use.
     """
 
-    if max_workers is None:
-        max_workers = multiprocessing.cpu_count()
-
-    with multiprocessing.Pool(processes=max_workers) as pool:
-        pool.starmap(call_ontogpt, [(lang, raw_results_dir, input_dir) for lang in langs])
+    for lang in langs:
+        call_ontogpt(lang, raw_results_dir, input_dir)
