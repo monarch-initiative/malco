@@ -3,14 +3,10 @@ library(readr)
 library(dplyr)
 library(tidyr)
 library(ggsci)
-library(gridExtra)  # Load the gridExtra package
 
-make_combined_hits_at_n_plot <- function(file1, mrr_data, output_file) {
+make_combined_hits_at_n_plot <- function(file1, output_file) {
   # Read the data from the file
   df1 <- read_tsv(file1, col_types = cols(.default = col_double(), lang = col_character()))
-
-  # Read the MRR data
-  mrr_value <- as.numeric(read_lines(mrr_data)[2])
 
   # Calculate total cases for the dataset
   total_cases1 <- sum(df1[, 2:ncol(df1)])
@@ -33,14 +29,9 @@ make_combined_hits_at_n_plot <- function(file1, mrr_data, output_file) {
     Dataset = rep("Phenopacket", 3)
   )
 
-  mrr_plot_data <- tibble(
-    Metric = "Mean reciprocal rank",
-    Value = mrr_value
-  )
-
   # Create the percentage plot
   p1 <- ggplot(plot_data, aes(x = Hits, y = Percentage, fill = Dataset)) +
-    geom_bar(stat = "identity", position = position_dodge()) +
+    geom_bar(stat = "identity", position = position_dodge(), width = 0.6) +  # Adjust the bar width here
     scale_fill_jama() +  # Apply JAMA color theme
     labs(x = "", y = "Percent of cases", title = "") +
     ylim(0, 40) +  # Adjust this as needed
@@ -52,36 +43,18 @@ make_combined_hits_at_n_plot <- function(file1, mrr_data, output_file) {
       axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0))  # Add margin to y-axis label
     )
 
-  # Create the MRR plot
-  p2 <- ggplot(mrr_plot_data, aes(x = Metric, y = Value, fill = Metric)) +
-    geom_bar(stat = "identity") +
-    scale_fill_jama() +  # Apply JAMA color theme
-    labs(x = "", y = "", title = "") +
-    ylim(0, 1) +  # MRR values are typically between 0 and 1
-    theme_minimal() +
-    theme(
-      legend.position = "none",  # Remove the legend
-      axis.text = element_text(size = 18),  # Increased font size
-      axis.title = element_text(size = 20),  # Increased font size
-      axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0))  # Add margin to y-axis label
-    )
-
-  # Combine the two plots
-  combined_plot <- grid.arrange(p1, p2, ncol = 2)
-
-  # Save the combined plot to the specified file
-  ggsave(output_file, plot = combined_plot, width = 12, height = 6, device = "png")
+  # Save the plot to the specified file
+  ggsave(output_file, plot = p1, width = 12, height = 6, device = "png")
 }
 
 # Main execution
 args <- commandArgs(trailingOnly = TRUE)
 
-if (length(args) != 3) {
-  stop("Usage: Rscript plot_hits_at_n.R <phenopacket_file> <mrr_file> <output_file>")
+if (length(args) != 2) {
+  stop("Usage: Rscript plot_hits_at_n.R <phenopacket_file> <output_file>")
 }
 
 phenopacket_file <- args[1]
-mrr_file <- args[2]
-output_file <- args[3]
+output_file <- args[2]
 
-make_combined_hits_at_n_plot(phenopacket_file, mrr_file, output_file)
+make_combined_hits_at_n_plot(phenopacket_file, output_file)
