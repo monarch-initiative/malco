@@ -23,7 +23,8 @@ def mondo_adapter() -> OboGraphInterface:
     """
     return get_adapter("sqlite:obo:mondo") 
 
-def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
+def compute_mrr(output_dir, prompt_dir, correct_answer_file,
+                raw_results_dir) -> Path:
     # Read in results TSVs from self.output_dir that match glob results*tsv 
     results_data = []
     results_files = []
@@ -83,6 +84,10 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
                 lambda row: 1 / row["rank"] if row["is_correct"] else 0, axis=1
             )
 
+            # Save full data frame
+            full_df_file = raw_results_dir / results_files[i][0:2] / "full_df_results.tsv"
+            df.to_csv(full_df_file, sep='\t', index=False)
+
             # Calculate MRR for this file
             mrr = df.groupby("label")["reciprocal_rank"].max().mean()
             mrr_scores.append(mrr)
@@ -109,7 +114,6 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
                    else:
                        # increase n10p
                        rank_df.loc[i,"n10p"] += 1
-
             
             
             # Write cache charatcteristics to file
@@ -122,15 +126,13 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
             i = i + 1
 
     
-    topn_file = output_dir / "plots/topn_result.tsv"
-    # use rank_df.to_csv() or something similar
+    plot_dir = output_dir / "plots"
+    plot_dir.mkdir(exist_ok=True)
+    topn_file = plot_dir / "topn_result.tsv"
     rank_df.to_csv(topn_file, sep='\t', index=False)
-
 
     print("MRR scores are:\n")
     print(mrr_scores)
-    plot_dir = output_dir / "plots"
-    plot_dir.mkdir(exist_ok=True)
     plot_data_file = plot_dir / "plotting_data.tsv"
 
     # write out results for plotting 
