@@ -27,11 +27,6 @@ class MalcoRunner(PhEvalRunner):
         Pre-process any data and inputs necessary to run the tool.
         """
         print("Preparing...\n")
-        # Before this prepare step:
-        # We start with cohort with 1 phenopacket per disease, run
-        # phenopacket2prompt.jar to get prompts
-        # We then commit this to the repo, and the phenopackets and prompts here
-        # are the source of truth
         pass
 
     def run(self):
@@ -61,8 +56,6 @@ class MalcoRunner(PhEvalRunner):
                      langs=self.languages,
                      models=self.models)
 
-        # I think we can simply change output directory and other args of compute mrr to run multimodel?
-        # cache and plot dipend on output directory, meaning those things will end up in. e.g. cli_outdir/multilingual/
         mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr(
             output_dir=self.output_dir / "multilingual" ,
             prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
