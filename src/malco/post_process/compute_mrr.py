@@ -30,7 +30,7 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file,
     results_files = []
     num_ppkt = 0
 
-    for subdir, dirs, files in os.walk(output_dir):
+    for subdir, dirs, files in os.walk(output_dir): # maybe change this so it only looks into multilingual/multimodel? I.e. use that as outputdir...?
         for filename in files:
             if filename.startswith("result") and filename.endswith(".tsv"):
                 file_path = os.path.join(subdir, filename)
@@ -85,7 +85,7 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file,
             )
 
             # Save full data frame
-            full_df_file = raw_results_dir / results_files[i][0:2] / "full_df_results.tsv"
+            full_df_file = raw_results_dir / results_files[i].split("/")[0] / "full_df_results.tsv"
             df.to_csv(full_df_file, sep='\t', index=False)
 
             # Calculate MRR for this file
@@ -93,7 +93,7 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file,
             mrr_scores.append(mrr)
             
             # Calculate top<n> of each rank
-            rank_df.loc[i,"lang"] = results_files[i][0:2]
+            rank_df.loc[i,"lang"] = results_files[i].split("/")[0]
             
             ppkts = df.groupby("label")[["rank","is_correct"]] 
             index_matches = df.index[df['is_correct']]
@@ -133,12 +133,12 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file,
 
     print("MRR scores are:\n")
     print(mrr_scores)
-    plot_data_file = plot_dir / "plotting_data.tsv"
+    mrr_file = plot_dir / "mrr_result.tsv"
 
     # write out results for plotting 
-    with plot_data_file.open('w', newline = '') as dat:
+    with mrr_file.open('w', newline = '') as dat:
         writer = csv.writer(dat, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
         writer.writerow(results_files)
         writer.writerow(mrr_scores)
         
-    return plot_data_file, plot_dir, num_ppkt, topn_file
+    return mrr_file, plot_dir, num_ppkt, topn_file

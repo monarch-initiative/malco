@@ -20,6 +20,7 @@ class MalcoRunner(PhEvalRunner):
     version: str
     # Declare a tuple (immutable!) of languages
     languages = ("en", "es", "nl", "it", "de")
+    models = ('gpt-4o', 'gpt-4') # Decide on list of models: Claude-Sonnet (Anthropic key), 
 
     def prepare(self):
         """
@@ -41,7 +42,8 @@ class MalcoRunner(PhEvalRunner):
         run(testdata_dir=self.testdata_dir,
             raw_results_dir=self.raw_results_dir,
             input_dir=self.input_dir,
-            langs=self.languages)
+            langs=self.languages,
+            models=self.models)
 
 
     def post_process(self,
@@ -56,13 +58,25 @@ class MalcoRunner(PhEvalRunner):
 
         post_process(raw_results_dir=self.raw_results_dir,
                      output_dir=self.output_dir,
-                     langs=self.languages)
+                     langs=self.languages,
+                     models=self.models)
 
-        plot_data_file, plot_dir, num_ppkt, topn_file = compute_mrr(
-            output_dir=self.output_dir,
+        # I think we can simply change output directory and other args of compute mrr to run multimodel?
+        # cache and plot dipend on output directory, meaning those things will end up in. e.g. cli_outdir/multilingual/
+        mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr(
+            output_dir=self.output_dir / "multilingual" ,
             prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
             correct_answer_file=correct_answer_file,
-            raw_results_dir=self.raw_results_dir)
+            raw_results_dir=self.raw_results_dir / "multilingual" )
         
         if print_plot:
-            make_plots(plot_data_file, plot_dir, self.languages, num_ppkt, topn_file)
+            make_plots(mrr_file, plot_dir, self.languages, num_ppkt, topn_file)
+
+        mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr(
+            output_dir=self.output_dir / "multimodel" ,
+            prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
+            correct_answer_file=correct_answer_file,
+            raw_results_dir=self.raw_results_dir / "multimodel" )
+        
+        if print_plot:
+            make_plots(mrr_file, plot_dir, self.languages, num_ppkt, topn_file)

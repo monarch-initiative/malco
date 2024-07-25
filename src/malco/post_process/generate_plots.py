@@ -6,12 +6,11 @@ import csv
 
 # Make a nice plot, use it as function or as script
 
-def make_plots(plot_data_file, plot_dir, languages, num_ppkt, topn_file):
-    with plot_data_file.open('r', newline = '') as f:
+def make_plots(mrr_file, plot_dir, languages, num_ppkt, topn_file):
+    with mrr_file.open('r', newline = '') as f:
         lines = csv.reader(f, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
         results_files = next(lines)
         mrr_scores = next(lines)
-        #lines = f.read().splitlines()
             
     print(results_files)
     print(mrr_scores)
@@ -23,6 +22,7 @@ def make_plots(plot_data_file, plot_dir, languages, num_ppkt, topn_file):
     plt.title("MRR of Correct Answers Across Different Results Files")
     plot_path = plot_dir /  (str(len(languages)) + "_langs_" + str(num_ppkt) + "ppkt.png")
     plt.savefig(plot_path)
+    plt.close()
 
     # Plotting bar-plots with top<n> ranks
     df = pd.read_csv(topn_file, delimiter='\t')
@@ -34,16 +34,16 @@ def make_plots(plot_data_file, plot_dir, languages, num_ppkt, topn_file):
     
     df_aggr = pd.DataFrame()
     df_aggr = pd.melt(df, id_vars="lang", value_vars=["top1", "top3", "top5", "top10", "not_found"], var_name="Rank_in", value_name="counts")
+    df_aggr["percentage"] = df_aggr["counts"]/num_ppkt
     bar_data_file = plot_dir / "topn_aggr.tsv"
     df_aggr.to_csv(bar_data_file, sep='\t', index=False)
 
-    sns.barplot(x="Rank_in", y="counts", data = df_aggr, hue = "lang")
+    sns.barplot(x="Rank_in", y="percentage", data = df_aggr, hue = "lang")
 
-    plt.xlabel("Number of Ranks")
-    plt.ylabel("Number of Correct Diagnoses")
-    plt.title("Rank Comparison for Different Languages")
+    plt.xlabel("Number of Ranks in")
+    plt.ylabel("Percentage of Cases")
+    plt.title("Rank Comparison for Differential Diagnosis")
     plot_path = plot_dir /  ("barplot_" + str(len(languages)) + "_langs_" + str(num_ppkt) + "ppkt.png")
     plt.savefig(plot_path)
-    plt.show()
-
+    plt.close()
     
