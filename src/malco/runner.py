@@ -56,20 +56,22 @@ class MalcoRunner(PhEvalRunner):
                      langs=self.languages,
                      models=self.models)
 
-        mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr(
+        comparing = "language"
+        mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr(comparing,
             output_dir=self.output_dir / "multilingual" ,
             prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
             correct_answer_file=correct_answer_file,
-            raw_results_dir=self.raw_results_dir / "multilingual" )
+            raw_results_dir=self.raw_results_dir / "multilingual")
         
         if print_plot:
-            make_plots(mrr_file, plot_dir, self.languages, num_ppkt, topn_file)
+            make_plots(mrr_file, plot_dir, self.languages, num_ppkt, self.models, topn_file, comparing)
 
-        mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr(
+        comparing = "model"
+        mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr( comparing,
             output_dir=self.output_dir / "multimodel" ,
             prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
             correct_answer_file=correct_answer_file,
             raw_results_dir=self.raw_results_dir / "multimodel" )
         
         if print_plot:
-            make_plots(mrr_file, plot_dir, self.languages, num_ppkt, topn_file)
+            make_plots(mrr_file, plot_dir, self.languages, num_ppkt, self.models, topn_file, comparing)

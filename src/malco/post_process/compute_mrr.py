@@ -23,7 +23,7 @@ def mondo_adapter() -> OboGraphInterface:
     """
     return get_adapter("sqlite:obo:mondo") 
 
-def compute_mrr(output_dir, prompt_dir, correct_answer_file,
+def compute_mrr(comparing, output_dir, prompt_dir, correct_answer_file,
                 raw_results_dir) -> Path:
     # Read in results TSVs from self.output_dir that match glob results*tsv 
     results_data = []
@@ -49,7 +49,7 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file,
     label_to_correct_term = answers.set_index("label")["term"].to_dict()
     # Calculate the Mean Reciprocal Rank (MRR) for each file
     mrr_scores = []
-    header = ["lang", "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n10p", "nf"]
+    header = [comparing, "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n10p", "nf"]
     rank_df = pd.DataFrame(0, index=np.arange(len(results_files)), columns=header)
 
     cache_file = output_dir / "cache_log.txt"
@@ -93,7 +93,7 @@ def compute_mrr(output_dir, prompt_dir, correct_answer_file,
             mrr_scores.append(mrr)
             
             # Calculate top<n> of each rank
-            rank_df.loc[i,"lang"] = results_files[i].split("/")[0]
+            rank_df.loc[i, comparing] = results_files[i].split("/")[0]
             
             ppkts = df.groupby("label")[["rank","is_correct"]] 
             index_matches = df.index[df['is_correct']]
