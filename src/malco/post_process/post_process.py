@@ -12,7 +12,7 @@ def post_process(raw_results_dir: Path, output_dir: Path, langs: tuple, models: 
         raw_results_dir (Path): Path to the raw results directory.
         output_dir (Path): Path to the output directory.
     """
-
+    '''
     for lang in langs:
         raw_results_lang = raw_results_dir / "multilingual" / lang
         output_lang = output_dir / "multilingual" / lang
@@ -21,7 +21,7 @@ def post_process(raw_results_dir: Path, output_dir: Path, langs: tuple, models: 
 
         create_standardised_results(raw_results_dir=raw_results_lang,
                                     output_dir=output_lang, output_file_name="results.tsv")
-        
+    '''
     for model in models:
         raw_results_model = raw_results_dir / "multimodel" / model
         output_model = output_dir / "multimodel" / model
