@@ -20,17 +20,13 @@ class MalcoRunner(PhEvalRunner):
     version: str
     # Declare a tuple (immutable!) of languages
     languages = ("en", "es", "nl", "it", "de")
+    models = ('gpt-4o', 'gpt-4') # Decide on list of models: Claude-Sonnet (Anthropic key), 
 
     def prepare(self):
         """
         Pre-process any data and inputs necessary to run the tool.
         """
         print("Preparing...\n")
-        # Before this prepare step:
-        # We start with cohort with 1 phenopacket per disease, run
-        # phenopacket2prompt.jar to get prompts
-        # We then commit this to the repo, and the phenopackets and prompts here
-        # are the source of truth
         pass
 
     def run(self):
@@ -41,7 +37,8 @@ class MalcoRunner(PhEvalRunner):
         run(testdata_dir=self.testdata_dir,
             raw_results_dir=self.raw_results_dir,
             input_dir=self.input_dir,
-            langs=self.languages)
+            langs=self.languages,
+            models=self.models)
 
 
     def post_process(self,
@@ -56,13 +53,25 @@ class MalcoRunner(PhEvalRunner):
 
         post_process(raw_results_dir=self.raw_results_dir,
                      output_dir=self.output_dir,
-                     langs=self.languages)
+                     langs=self.languages,
+                     models=self.models)
 
-        plot_data_file, plot_dir, num_ppkt, topn_file = compute_mrr(
-            output_dir=self.output_dir,
+        comparing = "language"
+        mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr(comparing,
+            output_dir=self.output_dir / "multilingual" ,
             prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
             correct_answer_file=correct_answer_file,
-            raw_results_dir=self.raw_results_dir)
+            raw_results_dir=self.raw_results_dir / "multilingual")
         
         if print_plot:
-            make_plots(plot_data_file, plot_dir, self.languages, num_ppkt, topn_file)
+            make_plots(mrr_file, plot_dir, self.languages, num_ppkt, self.models, topn_file, comparing)
+
+        comparing = "model"
+        mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr( comparing,
+            output_dir=self.output_dir / "multimodel" ,
+            prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
+            correct_answer_file=correct_answer_file,
+            raw_results_dir=self.raw_results_dir / "multimodel" )
+        
+        if print_plot:
+            make_plots(mrr_file, plot_dir, self.languages, num_ppkt, self.models, topn_file, comparing)
