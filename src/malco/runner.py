@@ -18,9 +18,13 @@ class MalcoRunner(PhEvalRunner):
     output_dir: Path
     config_file: Path
     version: str
-    # Declare a tuple (immutable!) of languages
+    # Declare a tuple of languages and models
+    #TODO move next 4 lines to input file
     languages = ("en", "es", "nl", "it", "de")
     models = ("gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o") # Decide on list of models: Claude-Sonnet (Anthropic key), 
+    just_run = 1          # only run the run part of the code
+    just_postprocess = 0  # only run the postprocess part of the code
+    
 
     def prepare(self):
         """
