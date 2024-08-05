@@ -47,11 +47,11 @@ def run(testdata_dir: Path,
 
     if max_workers is None:
         max_workers = multiprocessing.cpu_count()
-    '''
+
     modality = "several_languages"
     with multiprocessing.Pool(processes=max_workers) as pool:
         pool.starmap(call_ontogpt, [(lang, raw_results_dir / "multilingual", input_dir, "gpt-4-turbo", modality) for lang in langs])
-    '''
+
     # English only many models
     modality = "several_models"
     with multiprocessing.Pool(processes=max_workers) as pool:

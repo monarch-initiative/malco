@@ -26,6 +26,7 @@ class MalcoRunner(PhEvalRunner):
     just_postprocess = 0  # only run the postprocess part of the code
     
 
+
     def prepare(self):
         """
         Pre-process any data and inputs necessary to run the tool.
@@ -60,7 +61,7 @@ class MalcoRunner(PhEvalRunner):
                      langs=self.languages,
                      models=self.models)
         
-        '''
+        
         comparing = "language"
         mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr(comparing,
             output_dir=self.output_dir / "multilingual" ,
@@ -70,7 +71,7 @@ class MalcoRunner(PhEvalRunner):
         
         if print_plot:
             make_plots(mrr_file, plot_dir, self.languages, num_ppkt, self.models, topn_file, comparing)
-        '''
+        
         
         comparing = "model"
         mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr( comparing,
