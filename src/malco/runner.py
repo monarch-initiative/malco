@@ -18,9 +18,14 @@ class MalcoRunner(PhEvalRunner):
     output_dir: Path
     config_file: Path
     version: str
-    # Declare a tuple (immutable!) of languages
+    # Declare a tuple of languages and models
+    #TODO move next 4 lines to input file
     languages = ("en", "es", "nl", "it", "de")
-    models = ('gpt-4o', 'gpt-4') # Decide on list of models: Claude-Sonnet (Anthropic key), 
+    models = ("gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o") # Decide on list of models: Claude-Sonnet (Anthropic key), 
+    just_run = 1          # only run the run part of the code
+    just_postprocess = 0  # only run the postprocess part of the code
+    
+
 
     def prepare(self):
         """
@@ -55,7 +60,8 @@ class MalcoRunner(PhEvalRunner):
                      output_dir=self.output_dir,
                      langs=self.languages,
                      models=self.models)
-
+        
+        
         comparing = "language"
         mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr(comparing,
             output_dir=self.output_dir / "multilingual" ,
@@ -65,7 +71,8 @@ class MalcoRunner(PhEvalRunner):
         
         if print_plot:
             make_plots(mrr_file, plot_dir, self.languages, num_ppkt, self.models, topn_file, comparing)
-
+        
+        
         comparing = "model"
         mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr( comparing,
             output_dir=self.output_dir / "multimodel" ,
