@@ -1,16 +1,18 @@
 from oaklib.datamodels.vocabulary import IS_A
 from oaklib.interfaces import MappingProviderInterface
+from pathlib import Path
 
 from typing import List 
 from cachetools import cached, LRUCache
 from cachetools.keys import hashkey
 
 
-
 FULL_SCORE = 1.0
 PARTIAL_SCORE = 0.5
 
-@cached(cache=LRUCache(maxsize=16384), info=True, key=lambda term, adapter: hashkey(term))
+
+
+@cached(pc1, info=True, key=lambda term, adapter: hashkey(term))
 def omim_mappings(term: str, adapter) -> List[str]: 
     """
     Get the OMIM mappings for a term.
@@ -35,7 +37,7 @@ def omim_mappings(term: str, adapter) -> List[str]:
     return omims
 
 
-@cached(cache=LRUCache(maxsize=4096), info=True, key=lambda prediction, ground_truth, mondo: hashkey(prediction, ground_truth))
+@cached(pc2, info=True, key=lambda prediction, ground_truth, mondo: hashkey(prediction, ground_truth))
 def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
     """
     Score the grounded result.
@@ -82,5 +84,4 @@ def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
             # prediction is a MONDO that maps to a correct OMIM via a descendant
             return PARTIAL_SCORE
     return 0.0
-
 
