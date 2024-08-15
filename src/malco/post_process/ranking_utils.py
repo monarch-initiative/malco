@@ -5,14 +5,23 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 import pickle as pkl
-from malco.post_process.mondo_score_utils import score_grounded_result
-from malco.post_process.mondo_score_utils import omim_mappings
-from typing import List
+
 from oaklib.interfaces import OboGraphInterface
-
-
+from oaklib.datamodels.vocabulary import IS_A
+from oaklib.interfaces import MappingProviderInterface
 from oaklib import get_adapter
 
+from malco.post_process.mondo_score_utils import score_grounded_result
+from cachetools import LRUCache
+from typing import List 
+from cachetools.keys import hashkey
+from shelved_cache import PersistentCache
+
+FULL_SCORE = 1.0
+PARTIAL_SCORE = 0.5
+
+def cache_info(self):
+    return f"CacheInfo: hits={self.hits}, misses={self.misses}, maxsize={self.wrapped.maxsize}, currsize={self.wrapped.currsize}"
 
 def mondo_adapter() -> OboGraphInterface:
     """
@@ -23,14 +32,27 @@ def mondo_adapter() -> OboGraphInterface:
     """
     return get_adapter("sqlite:obo:mondo") 
 
-def compute_mrr(comparing, output_dir, prompt_dir, correct_answer_file,
-                raw_results_dir) -> Path:
+def compute_mrr_and_ranks(
+    comparing, 
+    output_dir, 
+    prompt_dir, 
+    correct_answer_file,
+    raw_results_dir,
+) -> Path:
     # Read in results TSVs from self.output_dir that match glob results*tsv 
     results_data = []
     results_files = []
     num_ppkt = 0
+    pc2_cache_file = str(output_dir / "score_grounded_result_cache")
+    pc2 = PersistentCache(LRUCache, pc2_cache_file, maxsize=4096)        
+    pc1_cache_file = str(output_dir / "omim_mappings_cache")
+    pc1 = PersistentCache(LRUCache, pc1_cache_file, maxsize=16384)
+    pc1.hits = pc1.misses = 0
+    pc2.hits = pc2.misses = 0
+    PersistentCache.cache_info = cache_info
+    
 
-    for subdir, dirs, files in os.walk(output_dir): # maybe change this so it only looks into multilingual/multimodel? I.e. use that as outputdir...?
+    for subdir, dirs, files in os.walk(output_dir):
         for filename in files:
             if filename.startswith("result") and filename.endswith(".tsv"):
                 file_path = os.path.join(subdir, filename)
@@ -54,7 +76,7 @@ def compute_mrr(comparing, output_dir, prompt_dir, correct_answer_file,
 
     cache_file = output_dir / "cache_log.txt"
 
-    with cache_file.open('w', newline = '') as cf:
+    with cache_file.open('a', newline = '') as cf:
         now_is = datetime.now().strftime("%Y%m%d-%H%M%S")
         cf.write("Timestamp: " + now_is +"\n\n")
         mondo = mondo_adapter()
@@ -74,7 +96,17 @@ def compute_mrr(comparing, output_dir, prompt_dir, correct_answer_file,
             # Make sure caching is used in the following by unwrapping explicitly
             results = []
             for idx, row in df.iterrows():
-                val = score_grounded_result(row['term'], row['correct_term'], mondo)
+
+                # lambda prediction, ground_truth, mondo: hashkey(prediction, ground_truth)
+                k = hashkey(row['term'], row['correct_term'])
+                try:
+                    val = pc2[k]
+                    pc2.hits += 1
+                except KeyError:
+                    # cache miss
+                    val = score_grounded_result(row['term'], row['correct_term'], mondo, pc1)
+                    pc2[k] = val
+                    pc2.misses += 1
                 is_correct = val > 0
                 results.append(is_correct)
 
@@ -97,7 +129,7 @@ def compute_mrr(comparing, output_dir, prompt_dir, correct_answer_file,
             
             ppkts = df.groupby("label")[["rank","is_correct"]] 
             index_matches = df.index[df['is_correct']]
-          
+        
             # for each group
             for ppkt in ppkts:
                 # is there a true? ppkt is tuple ("filename", dataframe) --> ppkt[1] is a dataframe 
@@ -105,26 +137,27 @@ def compute_mrr(comparing, output_dir, prompt_dir, correct_answer_file,
                     # no  --> increase nf = "not found"
                     rank_df.loc[i,"nf"] += 1       
                 else:
-                   # yes --> what's it rank? It's <j>
-                   jind = ppkt[1].index[ppkt[1]['is_correct']]
-                   j = int(ppkt[1]['rank'].loc[jind].values[0])
-                   if j<11:
-                       # increase n<j>
-                       rank_df.loc[i,"n"+str(j)] += 1
-                   else:
-                       # increase n10p
-                       rank_df.loc[i,"n10p"] += 1
-            
+                    # yes --> what's it rank? It's <j>
+                    jind = ppkt[1].index[ppkt[1]['is_correct']]
+                    j = int(ppkt[1]['rank'].loc[jind].values[0])
+                    if j<11:
+                        # increase n<j>
+                        rank_df.loc[i,"n"+str(j)] += 1
+                    else:
+                        # increase n10p
+                        rank_df.loc[i,"n10p"] += 1
             
             # Write cache charatcteristics to file
             cf.write(results_files[i])
             cf.write('\nscore_grounded_result cache info:\n')
-            cf.write(str(score_grounded_result.cache_info()))
+            cf.write(str(pc2.cache_info()))
             cf.write('\nomim_mappings cache info:\n')
-            cf.write(str(omim_mappings.cache_info()))
+            cf.write(str(pc1.cache_info()))
             cf.write('\n\n')
             i = i + 1
 
+    pc1.close()
+    pc2.close()
     
     plot_dir = output_dir / "plots"
     plot_dir.mkdir(exist_ok=True)

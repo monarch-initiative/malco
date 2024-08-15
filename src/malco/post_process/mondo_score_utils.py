@@ -1,16 +1,15 @@
 from oaklib.datamodels.vocabulary import IS_A
 from oaklib.interfaces import MappingProviderInterface
+from pathlib import Path
 
 from typing import List 
-from cachetools import cached, LRUCache
 from cachetools.keys import hashkey
-
 
 
 FULL_SCORE = 1.0
 PARTIAL_SCORE = 0.5
 
-@cached(cache=LRUCache(maxsize=16384), info=True, key=lambda term, adapter: hashkey(term))
+
 def omim_mappings(term: str, adapter) -> List[str]: 
     """
     Get the OMIM mappings for a term.
@@ -35,8 +34,7 @@ def omim_mappings(term: str, adapter) -> List[str]:
     return omims
 
 
-@cached(cache=LRUCache(maxsize=4096), info=True, key=lambda prediction, ground_truth, mondo: hashkey(prediction, ground_truth))
-def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
+def score_grounded_result(prediction: str, ground_truth: str, mondo, cache=None) -> float:
     """
     Score the grounded result.
 
@@ -72,15 +70,36 @@ def score_grounded_result(prediction: str, ground_truth: str, mondo) -> float:
         # predication is the correct OMIM
         return FULL_SCORE
 
-    if ground_truth in omim_mappings(prediction, mondo):
+    
+    ground_truths = get_ground_truth_from_cache_or_compute(prediction, mondo, cache)
+    if ground_truth in ground_truths:
         # prediction is a MONDO that directly maps to a correct OMIM
         return FULL_SCORE
 
     descendants_list = mondo.descendants([prediction], predicates=[IS_A], reflexive=True)
     for mondo_descendant in descendants_list:
-        if ground_truth in omim_mappings(mondo_descendant, mondo):
+        ground_truths = get_ground_truth_from_cache_or_compute(mondo_descendant, mondo, cache)
+        if ground_truth in ground_truths:
             # prediction is a MONDO that maps to a correct OMIM via a descendant
             return PARTIAL_SCORE
     return 0.0
 
+def get_ground_truth_from_cache_or_compute(
+    term, 
+    adapter, 
+    cache,
+):
+    if cache is None:
+        return omim_mappings(term, adapter)
+        
+    k = hashkey(term)
+    try:
+        ground_truths = cache[k]
+        cache.hits += 1
+    except KeyError:
+        # cache miss
+        ground_truths = omim_mappings(term, adapter)
+        cache[k] = ground_truths
+        cache.misses += 1
+    return ground_truths
 

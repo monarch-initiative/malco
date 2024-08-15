@@ -48,7 +48,6 @@ def make_plots(mrr_file, plot_dir, languages, num_ppkt, models, topn_file, compa
     plt.xlabel("Number of Ranks in")
     plt.ylabel("Percentage of Cases")
     plt.title("Rank Comparison for Differential Diagnosis")
-    breakpoint()
     plt.legend(title=comparing)
     plot_path = plot_dir /  ("barplot_" + name_string + "_" + comparing + "_" + str(num_ppkt) + "ppkt.png")
     plt.savefig(plot_path)
