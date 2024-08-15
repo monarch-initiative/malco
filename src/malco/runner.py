@@ -83,3 +83,6 @@ class MalcoRunner(PhEvalRunner):
         
         if print_plot:
             make_plots(mrr_file, plot_dir, self.languages, num_ppkt, self.models, topn_file, comparing)
+
+        # Cleanup
+        os.system(f"rm -r {self.input_dir}/prompts/tmp/")
