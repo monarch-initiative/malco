@@ -1,7 +1,7 @@
 from pathlib import Path
 import multiprocessing
 import subprocess
-from malco.run import search_ppkts
+from malco.run.search_ppkts import search_ppkts
 
 def call_ontogpt(lang, raw_results_dir, input_dir, model, modality):
     # TODO
@@ -13,22 +13,22 @@ def call_ontogpt(lang, raw_results_dir, input_dir, model, modality):
     # Copy all prompt files in the new tmp inputdir, except the ones of line above
      
     if modality=="several_languages":
-        #selected_indir  = search_ppkts(input_dir, raw_results_dir, lang)
+        selected_indir  = search_ppkts(input_dir, raw_results_dir, lang)
         command = (
             f"ontogpt -v run-multilingual-analysis "
             f"--output={raw_results_dir}/{lang}/results.yaml "  # save raw OntoGPT output
-            #f"{selected_indir} "
-            f"{input_dir}/prompts/{lang}/ "
+            f"{selected_indir} "
+            #f"{input_dir}/prompts/{lang}/ "
             f"{raw_results_dir}/{lang}/differentials_by_file/ "
             f"--model={model}"
         )
     elif modality=="several_models":
-        #selected_indir  = search_ppkts(input_dir, raw_results_dir, model)
+        selected_indir  = search_ppkts(input_dir, raw_results_dir, model, True)
         command = (
             f"ontogpt -v run-multilingual-analysis "
             f"--output={raw_results_dir}/{model}/results.yaml "  # save raw OntoGPT output
-            #f"{selected_indir} "
-            f"{input_dir}/prompts/{lang}/ "
+            f"{selected_indir} "
+            #f"{input_dir}/prompts/{lang}/ "
             f"{raw_results_dir}/{model}/differentials_by_file/ "
             f"--model={model}"
         )
