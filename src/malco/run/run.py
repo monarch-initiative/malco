@@ -4,6 +4,7 @@ import subprocess
 from malco.run import search_ppkts
 
 def call_ontogpt(lang, raw_results_dir, input_dir, model, modality):
+    # TODO
     # Check what ppkts have already been computed in current output dir, for current run parameters
     # ontogpt will run every txt that is in inputdir, we need a tmp inputdir
     # This tmp inputdir contains only the prompts that have not yet been computed for a given, fixed model (pars set)
@@ -38,7 +39,7 @@ def call_ontogpt(lang, raw_results_dir, input_dir, model, modality):
     process.communicate()
     print(f"Finished command for language {lang} and model {model}") 
 
-#TODO get rid of parallelization?
+#TODO decide whether to get rid of parallelization
 def run(testdata_dir: Path,
         raw_results_dir: Path,
         input_dir: Path,
