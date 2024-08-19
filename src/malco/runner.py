@@ -21,8 +21,8 @@ class MalcoRunner(PhEvalRunner):
     # Declare a tuple of languages and models
     #TODO move next 4 lines to input file
     languages = ("en", "es", "nl", "it", "de")
-    #models = ("gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o") # Decide on list of models: Claude-Sonnet (Anthropic key), 
-    models = ("gpt-3.5-turbo", "gpt-4-turbo") # Decide on list of models: Claude-Sonnet (Anthropic key), 
+    models = ("gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o") # Decide on list of models: Claude-Sonnet (Anthropic key), 
+    #models = ("gpt-3.5-turbo", "gpt-4-turbo") # Decide on list of models: Claude-Sonnet (Anthropic key), 
     just_run = 1          # only run the run part of the code
     just_postprocess = 0  # only run the postprocess part of the code
     
@@ -64,25 +64,23 @@ class MalcoRunner(PhEvalRunner):
         
         '''
         comparing = "language"
-        mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr_and_ranks(comparing,
+        mrr_file, plot_dir, num_ppkt, topn_aggr_file = compute_mrr_and_ranks(comparing,
             output_dir=self.output_dir / "multilingual" ,
             prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
-            correct_answer_file=correct_answer_file,
-            raw_results_dir=self.raw_results_dir / "multilingual")
+            correct_answer_file=correct_answer_file)
         
         if print_plot:
-            make_plots(mrr_file, plot_dir, self.languages, num_ppkt, self.models, topn_file, comparing)
+            make_plots(mrr_file, plot_dir, self.languages, num_ppkt, self.models, topn_aggr_file, comparing)
         
         '''
         comparing = "model"
-        mrr_file, plot_dir, num_ppkt, topn_file = compute_mrr_and_ranks(comparing,
+        mrr_file, data_dir, num_ppkt, topn_aggr_file = compute_mrr_and_ranks(comparing,
             output_dir=self.output_dir / "multimodel" ,
             prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
-            correct_answer_file=correct_answer_file,
-            raw_results_dir=self.raw_results_dir / "multimodel" )
+            correct_answer_file=correct_answer_file)
         
         if print_plot:
-            make_plots(mrr_file, plot_dir, self.languages, num_ppkt, self.models, topn_file, comparing)
+            make_plots(mrr_file, data_dir, self.languages, num_ppkt, self.models, topn_aggr_file, comparing)
 
         # Cleanup
         os.system(f"rm -r {self.input_dir}/prompts/tmp/")

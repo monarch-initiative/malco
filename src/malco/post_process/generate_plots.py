@@ -6,7 +6,8 @@ import csv
 
 # Make a nice plot, use it as function or as script
 
-def make_plots(mrr_file, plot_dir, languages, num_ppkt, models, topn_file, comparing):
+def make_plots(mrr_file, data_dir, languages, num_ppkt, models, topn_aggr_file, comparing):
+    plot_dir = data_dir.parents[0] / "plots"
     if comparing=="model":
         name_string = str(len(models))
     else:
@@ -30,19 +31,8 @@ def make_plots(mrr_file, plot_dir, languages, num_ppkt, models, topn_file, compa
     plt.close()
 
     # Plotting bar-plots with top<n> ranks
-    df = pd.read_csv(topn_file, delimiter='\t')
-    df["top1"] = df['n1']
-    df["top3"] = df["n1"] + df["n2"] + df["n3"]
-    df["top5"] = df["top3"] + df["n4"] + df["n5"]
-    df["top10"] = df["top5"] + df["n6"] + df["n7"] + df["n8"] + df["n9"] + df["n10"]
-    df["not_found"] = df["nf"]
+    df_aggr = pd.read_csv(topn_aggr_file, delimiter='\t')
     
-    df_aggr = pd.DataFrame()
-    df_aggr = pd.melt(df, id_vars=comparing, value_vars=["top1", "top3", "top5", "top10", "not_found"], var_name="Rank_in", value_name="counts")
-    df_aggr["percentage"] = df_aggr["counts"]/num_ppkt
-    bar_data_file = plot_dir / "topn_aggr.tsv"
-    df_aggr.to_csv(bar_data_file, sep='\t', index=False)
-
     sns.barplot(x="Rank_in", y="percentage", data = df_aggr, hue = comparing)
 
     plt.xlabel("Number of Ranks in")

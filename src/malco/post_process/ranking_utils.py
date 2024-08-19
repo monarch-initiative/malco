@@ -37,8 +37,7 @@ def compute_mrr_and_ranks(
     output_dir, 
     prompt_dir, 
     correct_answer_file,
-    raw_results_dir,
-) -> Path:
+    ) -> Path:
     # Read in results TSVs from self.output_dir that match glob results*tsv 
     results_data = []
     results_files = []
@@ -47,6 +46,7 @@ def compute_mrr_and_ranks(
     pc2 = PersistentCache(LRUCache, pc2_cache_file, maxsize=4096)        
     pc1_cache_file = str(output_dir / "omim_mappings_cache")
     pc1 = PersistentCache(LRUCache, pc1_cache_file, maxsize=16384)
+    # Treat hits and misses as run-specific arguments, write them cache_log
     pc1.hits = pc1.misses = 0
     pc2.hits = pc2.misses = 0
     PersistentCache.cache_info = cache_info
@@ -117,7 +117,7 @@ def compute_mrr_and_ranks(
             )
 
             # Save full data frame
-            full_df_file = raw_results_dir / results_files[i].split("/")[0] / "full_df_results.tsv"
+            full_df_file = output_dir / results_files[i].split("/")[0] / "full_df_results.tsv"
             df.to_csv(full_df_file, sep='\t', index=False)
 
             # Calculate MRR for this file
@@ -159,19 +159,33 @@ def compute_mrr_and_ranks(
     pc1.close()
     pc2.close()
     
-    plot_dir = output_dir / "plots"
-    plot_dir.mkdir(exist_ok=True)
-    topn_file = plot_dir / "topn_result.tsv"
+
+    data_dir = output_dir / "rank_data"
+    data_dir.mkdir(exist_ok=True)
+    topn_file = data_dir / "topn_result.tsv"
     rank_df.to_csv(topn_file, sep='\t', index=False)
 
     print("MRR scores are:\n")
     print(mrr_scores)
-    mrr_file = plot_dir / "mrr_result.tsv"
+    mrr_file = data_dir / "mrr_result.tsv"
 
     # write out results for plotting 
     with mrr_file.open('w', newline = '') as dat:
         writer = csv.writer(dat, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
         writer.writerow(results_files)
         writer.writerow(mrr_scores)
+
+    df = pd.read_csv(topn_file, delimiter='\t')
+    df["top1"] = df['n1']
+    df["top3"] = df["n1"] + df["n2"] + df["n3"]
+    df["top5"] = df["top3"] + df["n4"] + df["n5"]
+    df["top10"] = df["top5"] + df["n6"] + df["n7"] + df["n8"] + df["n9"] + df["n10"]
+    df["not_found"] = df["nf"]
+    
+    df_aggr = pd.DataFrame()
+    df_aggr = pd.melt(df, id_vars=comparing, value_vars=["top1", "top3", "top5", "top10", "not_found"], var_name="Rank_in", value_name="counts")
+    df_aggr["percentage"] = df_aggr["counts"]/num_ppkt
+    topn_aggr_file = data_dir / "topn_aggr.tsv"
+    df_aggr.to_csv(topn_aggr_file, sep='\t', index=False)
         
-    return mrr_file, plot_dir, num_ppkt, topn_file
+    return mrr_file, data_dir, num_ppkt, topn_aggr_file

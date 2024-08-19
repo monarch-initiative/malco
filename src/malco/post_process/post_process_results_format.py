@@ -29,6 +29,7 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path,
     data = []
     for raw_result_path in raw_results_dir.iterdir():
         if raw_result_path.is_file():
+            # Cannot have further files in raw_result_path!
             all_results = read_raw_result_yaml(raw_result_path)
 
             for this_result in all_results:
@@ -37,6 +38,8 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path,
                     label = extracted_object.get('label')
                     terms = extracted_object.get('terms')
                     if terms:
+                    # Note, the if allows for rerunning ppkts that failed due to connection issues
+                    # We can have multiple identical ppkts/prompts in results.yaml as long as only one has a terms field
                         num_terms = len(terms)
                         score = [1 / (i + 1) for i in range(num_terms)]  # score is reciprocal rank
                         rank_list = [ i+1 for i in range(num_terms)]
@@ -48,6 +51,7 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path,
 
     # Save DataFrame to TSV
     output_path = output_dir / output_file_name
+    # TODO add a check that this appending does not grow beyond reason... maybe make entries unique at the end of a run as a test?
     df.to_csv(output_path, sep='\t', index=False)
 
     return df

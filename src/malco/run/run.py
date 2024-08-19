@@ -1,22 +1,21 @@
 from pathlib import Path
 import multiprocessing
 import subprocess
+import shutil
+import os
 from malco.run.search_ppkts import search_ppkts
 
 def call_ontogpt(lang, raw_results_dir, input_dir, model, modality):
-    # TODO
-    # Check what ppkts have already been computed in current output dir, for current run parameters
-    # ontogpt will run every txt that is in inputdir, we need a tmp inputdir
-    # This tmp inputdir contains only the prompts that have not yet been computed for a given, fixed model (pars set)
-    # If it exists and is not empty, create a list of what is in {raw_results_dir}/{lang}/differentials_by_file/
-    # The file names are identical to the prompt file names, with an extra ".result"
-    # Copy all prompt files in the new tmp inputdir, except the ones of line above
-     
+    
     if modality=="several_languages":
         selected_indir  = search_ppkts(input_dir, raw_results_dir, lang)
+        yaml_file = f"{raw_results_dir}/{lang}/results.yaml"
+        if Path(yaml_file).isFile():
+            old_yaml_file = yaml_file
+            yaml_file = f"{raw_results_dir}/{lang}/new_results.yaml"
         command = (
             f"ontogpt -v run-multilingual-analysis "
-            f"--output={raw_results_dir}/{lang}/results.yaml "  # save raw OntoGPT output
+            f"--output={yaml_file} "  # save raw OntoGPT output
             f"{selected_indir} "
             #f"{input_dir}/prompts/{lang}/ "
             f"{raw_results_dir}/{lang}/differentials_by_file/ "
@@ -24,9 +23,13 @@ def call_ontogpt(lang, raw_results_dir, input_dir, model, modality):
         )
     elif modality=="several_models":
         selected_indir  = search_ppkts(input_dir, raw_results_dir, model, True)
+        yaml_file = f"{raw_results_dir}/{model}/results.yaml"   
+        if Path(yaml_file).isFile():
+            old_yaml_file = yaml_file
+            yaml_file = f"{raw_results_dir}/{model}/new_results.yaml"     
         command = (
             f"ontogpt -v run-multilingual-analysis "
-            f"--output={raw_results_dir}/{model}/results.yaml "  # save raw OntoGPT output
+            f"--output={yaml_file} "  # save raw OntoGPT output
             f"{selected_indir} "
             #f"{input_dir}/prompts/{lang}/ "
             f"{raw_results_dir}/{model}/differentials_by_file/ "
@@ -37,7 +40,16 @@ def call_ontogpt(lang, raw_results_dir, input_dir, model, modality):
     print(f"Running command: {command}")
     process = subprocess.Popen(command, shell=True)
     process.communicate()
-    print(f"Finished command for language {lang} and model {model}") 
+    # Note: if file.txt.result is empty, what ends up in the yaml is still OK thanks to L39 in post_process_results_format.py
+    print(f"Finished command for language {lang} and model {model}")
+    try:
+        with open(yaml_file, 'r') as file2concat:
+            with open(old_yaml_file, 'a') as original_file:
+                shutil.copyfileobj(file2concat, original_file)
+        os.remove(yaml_file)
+    except NameError:
+        pass
+
 
 #TODO decide whether to get rid of parallelization
 def run(testdata_dir: Path,
@@ -70,3 +82,4 @@ def run(testdata_dir: Path,
     modality = "several_models"
     with multiprocessing.Pool(processes=max_workers) as pool:
         pool.starmap(call_ontogpt, [("en", raw_results_dir / "multimodel", input_dir, model, modality) for model in models])
+            

@@ -24,7 +24,7 @@ def post_process(raw_results_dir: Path, output_dir: Path, langs: tuple, models: 
                                     output_dir=output_lang, output_file_name="results.tsv")
 
     '''
-    
+    #TODO should this duplicated code a single code with a parameter?
     for model in models:
         raw_results_model = raw_results_dir / "multimodel" / model
         output_model = output_dir / "multimodel" / model
