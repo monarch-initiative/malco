@@ -1,15 +1,14 @@
 import os
 import shutil
 
-# Check what ppkts have already been computed in current output dir, for current run parameters
-# ontogpt will run every txt that is in inputdir, we need a tmp inputdir
-# This tmp inputdir contains only the prompts that have not yet been computed for a given, fixed model (pars set)
-# If it exists and is not empty, create a list of what is in {raw_results_dir}/{lang}/differentials_by_file/
-# The file names are identical to the prompt file names, with an extra ".result"
-# Copy all prompt files in the new tmp inputdir, except the ones of line above
     
 def search_ppkts(input_dir, raw_results_dir, lang_or_model, *args):
-    if args[0]:
+    """
+    Check what ppkts have already been computed in current output dir, for current run parameters.
+    ontogpt will run every .txt that is in inputdir, we need a tmp inputdir 
+    excluding already run cases.
+    """
+    if args[0]: # necessary extra handle, multiple models only do English
         original_inputdir = f"{input_dir}/prompts/en/"
     else:
         original_inputdir = f"{input_dir}/prompts/{lang_or_model}/"
@@ -17,18 +16,20 @@ def search_ppkts(input_dir, raw_results_dir, lang_or_model, *args):
     
     # files is a ls of diff_dir
     files = []
+    # Create a list of what is in {raw_results_dir}/{lang}/differentials_by_file/
     for (dirpath, dirnames, filenames) in os.walk(diff_dir):
         files.extend(filenames) # list of filenames
         break
     
-    # if files not exist
+    # If no files are found, no previous run exists
     if files==[]:
         return original_inputdir
     else:
+        # tmp inputdir contains prompts yet to be computed for a given model (pars set)
         selected_indir = f"{input_dir}/prompts/tmp/{lang_or_model}"
         os.makedirs(selected_indir)
 
-    # prompts = os.ls(original_inputdir)
+    # prompts: ls original_inputdir
     promptfiles = []
     for (dirpath, dirnames, filenames) in os.walk(original_inputdir):
         promptfiles.extend(filenames) 
@@ -36,9 +37,16 @@ def search_ppkts(input_dir, raw_results_dir, lang_or_model, *args):
 
     # foreach promptfile in original_inputdir
     for promptfile in promptfiles:
+        # The file names are identical to the prompt file names, with an extra ".result"
         aux = promptfile + ".result"
+        # If something failed and an empty file exists, run it again
+        # Copy all prompt files in the new tmp inputdir, except the ones of line above
         if aux in files:
-            continue
+            emptyfile = (os.path.getsize(diff_dir + aux)==0)
+            if not emptyfile:
+                continue
+            else:
+                shutil.copyfile(original_inputdir + promptfile, selected_indir + "/" + promptfile)
         else:
             shutil.copyfile(original_inputdir + promptfile, selected_indir + "/" + promptfile)
     return selected_indir
