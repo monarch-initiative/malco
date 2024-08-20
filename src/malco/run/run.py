@@ -10,7 +10,7 @@ def call_ontogpt(lang, raw_results_dir, input_dir, model, modality):
     if modality=="several_languages":
         selected_indir  = search_ppkts(input_dir, raw_results_dir, lang)
         yaml_file = f"{raw_results_dir}/{lang}/results.yaml"
-        if Path(yaml_file).isFile():
+        if Path(yaml_file).is_file():
             old_yaml_file = yaml_file
             yaml_file = f"{raw_results_dir}/{lang}/new_results.yaml"
         command = (
@@ -24,7 +24,7 @@ def call_ontogpt(lang, raw_results_dir, input_dir, model, modality):
     elif modality=="several_models":
         selected_indir  = search_ppkts(input_dir, raw_results_dir, model, True)
         yaml_file = f"{raw_results_dir}/{model}/results.yaml"   
-        if Path(yaml_file).isFile():
+        if Path(yaml_file).is_file():
             old_yaml_file = yaml_file
             yaml_file = f"{raw_results_dir}/{model}/new_results.yaml"     
         command = (
@@ -48,6 +48,8 @@ def call_ontogpt(lang, raw_results_dir, input_dir, model, modality):
                 shutil.copyfileobj(file2concat, original_file)
         os.remove(yaml_file)
     except NameError:
+        pass
+    except FileNotFoundError:
         pass
 
 
