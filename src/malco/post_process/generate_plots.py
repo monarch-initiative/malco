@@ -8,6 +8,8 @@ import csv
 
 def make_plots(mrr_file, data_dir, languages, num_ppkt, models, topn_aggr_file, comparing):
     plot_dir = data_dir.parents[0] / "plots"
+    plot_dir.mkdir(exist_ok=True)
+
     if comparing=="model":
         name_string = str(len(models))
     else:

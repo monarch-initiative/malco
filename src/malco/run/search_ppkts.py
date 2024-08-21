@@ -2,16 +2,12 @@ import os
 import shutil
 
     
-def search_ppkts(input_dir, raw_results_dir, lang_or_model, *args):
+def search_ppkts(input_dir, original_inputdir, raw_results_dir, lang_or_model):
     """
     Check what ppkts have already been computed in current output dir, for current run parameters.
     ontogpt will run every .txt that is in inputdir, we need a tmp inputdir 
     excluding already run cases.
     """
-    if args[0]: # necessary extra handle, multiple models only do English
-        original_inputdir = f"{input_dir}/prompts/en/"
-    else:
-        original_inputdir = f"{input_dir}/prompts/{lang_or_model}/"
     diff_dir = f"{raw_results_dir}/{lang_or_model}/differentials_by_file/"
     
     # files is a ls of diff_dir
