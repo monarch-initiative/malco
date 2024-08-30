@@ -23,6 +23,7 @@ def mondo_adapter() -> OboGraphInterface:
     """
     return get_adapter("sqlite:obo:mondo")
 
+
 def compute_mrr(output_dir, prompt_dir, correct_answer_file) -> Path:
     # Read in results TSVs from self.output_dir that match glob results*tsv
     results_data = []

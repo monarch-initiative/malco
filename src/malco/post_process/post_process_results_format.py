@@ -331,49 +331,93 @@ class PhEvalDiseaseResultFromExomiserJsonCreator:
         return simplified_exomiser_result
 
 
-def create_exomiser_standardised_results(
-    results_dir: Path,
-    output_dir: Path,
-    score_name: str,
-    sort_order: str,
-    variant_analysis: bool,
-    gene_analysis: bool,
-    disease_analysis: bool,
-    include_acmg: bool = False,
+from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
+import tqdm
+
+
+def process_exomiser_result(
+        exomiser_json_result: Path,
+        score_name: str,
+        sort_order: str,
+        variant_analysis: bool,
+        gene_analysis: bool,
+        disease_analysis: bool,
+        include_acmg: bool,
+        output_dir: Path
 ) -> None:
-    """Write standardised gene/variant/disease results from default Exomiser json output."""
-    for exomiser_json_result in tqdm.tqdm(files_with_suffix(results_dir, ".json"), desc="Processing Exomiser Results"):
-        exomiser_result = read_exomiser_json_result(exomiser_json_result)
-        if gene_analysis:
-            pheval_gene_requirements = PhEvalGeneResultFromExomiserJsonCreator(
-                exomiser_result, score_name
-            ).extract_pheval_gene_requirements()
-            generate_pheval_result(
-                pheval_result=pheval_gene_requirements,
-                sort_order_str=sort_order,
-                output_dir=output_dir,
-                tool_result_path=trim_exomiser_result_filename(exomiser_json_result),
+    """Process a single Exomiser result file."""
+    exomiser_result = read_exomiser_json_result(exomiser_json_result)
+
+    if gene_analysis:
+        pheval_gene_requirements = PhEvalGeneResultFromExomiserJsonCreator(
+            exomiser_result, score_name
+        ).extract_pheval_gene_requirements()
+        generate_pheval_result(
+            pheval_result=pheval_gene_requirements,
+            sort_order_str=sort_order,
+            output_dir=output_dir,
+            tool_result_path=trim_exomiser_result_filename(exomiser_json_result),
+        )
+
+    if variant_analysis:
+        pheval_variant_requirements = PhEvalVariantResultFromExomiserJsonCreator(
+            exomiser_result, score_name
+        ).extract_pheval_variant_requirements(include_acmg)
+        generate_pheval_result(
+            pheval_result=pheval_variant_requirements,
+            sort_order_str=sort_order,
+            output_dir=output_dir,
+            tool_result_path=trim_exomiser_result_filename(exomiser_json_result),
+        )
+
+    if disease_analysis:
+        pheval_disease_requirements = PhEvalDiseaseResultFromExomiserJsonCreator(
+            exomiser_result
+        ).extract_pheval_disease_requirements()
+        generate_pheval_result(
+            pheval_result=pheval_disease_requirements,
+            sort_order_str=sort_order,
+            output_dir=output_dir,
+            tool_result_path=trim_exomiser_result_filename(exomiser_json_result),
+        )
+
+
+def create_exomiser_standardised_results(
+        results_dir: Path,
+        output_dir: Path,
+        score_name: str,
+        sort_order: str,
+        variant_analysis: bool,
+        gene_analysis: bool,
+        disease_analysis: bool,
+        include_acmg: bool = False,
+) -> None:
+    """Write standardized gene/variant/disease results from default Exomiser JSON output using parallel processing."""
+
+    exomiser_json_files = list(files_with_suffix(results_dir, ".json"))
+
+    # Use ProcessPoolExecutor to parallelize the processing
+    with ProcessPoolExecutor() as executor:
+        futures = [
+            executor.submit(
+                process_exomiser_result,
+                exomiser_json_result,
+                score_name,
+                sort_order,
+                variant_analysis,
+                gene_analysis,
+                disease_analysis,
+                include_acmg,
+                output_dir
             )
-        if variant_analysis:
-            pheval_variant_requirements = PhEvalVariantResultFromExomiserJsonCreator(
-                exomiser_result, score_name
-            ).extract_pheval_variant_requirements(include_acmg)
-            generate_pheval_result(
-                pheval_result=pheval_variant_requirements,
-                sort_order_str=sort_order,
-                output_dir=output_dir,
-                tool_result_path=trim_exomiser_result_filename(exomiser_json_result),
-            )
-        if disease_analysis:
-            pheval_disease_requirements = PhEvalDiseaseResultFromExomiserJsonCreator(
-                exomiser_result
-            ).extract_pheval_disease_requirements()
-            generate_pheval_result(
-                pheval_result=pheval_disease_requirements,
-                sort_order_str=sort_order,
-                output_dir=output_dir,
-                tool_result_path=trim_exomiser_result_filename(exomiser_json_result),
-            )
+            for exomiser_json_result in exomiser_json_files
+        ]
+
+        # Use tqdm to display a progress bar
+        for _ in tqdm.tqdm(futures, total=len(futures),
+                           desc="Processing Exomiser Results"):
+            _.result()  # Wait for all futures to complete
 
 
 @click.command()

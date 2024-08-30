@@ -6,13 +6,14 @@ import csv
 
 # Make a nice plot, use it as function or as script
 
+
 def make_plots(plot_data_file, plot_dir, languages, num_ppkt, topn_file):
     with plot_data_file.open('r', newline = '') as f:
         lines = csv.reader(f, quoting = csv.QUOTE_NONNUMERIC, delimiter = '\t', lineterminator='\n')
         results_files = next(lines)
         mrr_scores = next(lines)
         #lines = f.read().splitlines()
-            
+
     print(results_files)
     print(mrr_scores)
 
@@ -31,7 +32,7 @@ def make_plots(plot_data_file, plot_dir, languages, num_ppkt, topn_file):
     df["top5"] = df["top3"] + df["n4"] + df["n5"]
     df["top10"] = df["top5"] + df["n6"] + df["n7"] + df["n8"] + df["n9"] + df["n10"]
     df["not_found"] = df["nf"]
-    
+
     df_aggr = pd.DataFrame()
     df_aggr = pd.melt(df, id_vars="lang", value_vars=["top1", "top3", "top5", "top10", "not_found"], var_name="Rank_in", value_name="counts")
     bar_data_file = plot_dir / "topn_aggr.tsv"
@@ -46,4 +47,4 @@ def make_plots(plot_data_file, plot_dir, languages, num_ppkt, topn_file):
     plt.savefig(plot_path)
     plt.show()
 
-    
+
