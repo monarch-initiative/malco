@@ -1,43 +1,60 @@
 from pathlib import Path
 import multiprocessing
 import subprocess
-from malco.run import search_ppkts
+import shutil
+import os
+import typing
 
-def call_ontogpt(lang, raw_results_dir, input_dir, model, modality):
-    # TODO
-    # Check what ppkts have already been computed in current output dir, for current run parameters
-    # ontogpt will run every txt that is in inputdir, we need a tmp inputdir
-    # This tmp inputdir contains only the prompts that have not yet been computed for a given, fixed model (pars set)
-    # If it exists and is not empty, create a list of what is in {raw_results_dir}/{lang}/differentials_by_file/
-    # The file names are identical to the prompt file names, with an extra ".result"
-    # Copy all prompt files in the new tmp inputdir, except the ones of line above
-     
-    if modality=="several_languages":
-        #selected_indir  = search_ppkts(input_dir, raw_results_dir, lang)
-        command = (
-            f"ontogpt -v run-multilingual-analysis "
-            f"--output={raw_results_dir}/{lang}/results.yaml "  # save raw OntoGPT output
-            #f"{selected_indir} "
-            f"{input_dir}/prompts/{lang}/ "
-            f"{raw_results_dir}/{lang}/differentials_by_file/ "
-            f"--model={model}"
-        )
-    elif modality=="several_models":
-        #selected_indir  = search_ppkts(input_dir, raw_results_dir, model)
-        command = (
-            f"ontogpt -v run-multilingual-analysis "
-            f"--output={raw_results_dir}/{model}/results.yaml "  # save raw OntoGPT output
-            #f"{selected_indir} "
-            f"{input_dir}/prompts/{lang}/ "
-            f"{raw_results_dir}/{model}/differentials_by_file/ "
-            f"--model={model}"
-        )
+from malco.run.search_ppkts import search_ppkts
+
+def call_ontogpt(
+    lang, raw_results_dir, input_dir, model, 
+    modality: typing.Literal['several_languages', 'several_models'],
+):
+    prompt_dir = f'{input_dir}/prompts/'
+    if modality == 'several_languages':
+        lang_or_model_dir = lang
+        prompt_dir += f"{lang_or_model_dir}/"
+    elif modality == 'several_models':
+        lang_or_model_dir = model
+        prompt_dir += "en/"
     else:
-        command(f"echo Something is not working...")
+        raise ValueError('not permitted run modality!\n')
+
+    selected_indir  = search_ppkts(input_dir, prompt_dir, raw_results_dir, lang_or_model_dir)
+    yaml_file = f"{raw_results_dir}/{lang_or_model_dir}/results.yaml"
+    
+    if os.path.isfile(yaml_file):
+        old_yaml_file = yaml_file
+        yaml_file = f"{raw_results_dir}/{lang_or_model_dir}/new_results.yaml"
+        print(f"new yaml and old yaml of {model}are :")
+        print(yaml_file)
+        print(old_yaml_file)
+
+    command = (
+        f"ontogpt -v run-multilingual-analysis "
+        f"--output={yaml_file} "  # save raw OntoGPT output
+        f"{selected_indir} "
+        f"{raw_results_dir}/{lang_or_model_dir}/differentials_by_file/ "  # OntoGPT output directory
+        f"--model={model}"
+    )
+
     print(f"Running command: {command}")
     process = subprocess.Popen(command, shell=True)
     process.communicate()
-    print(f"Finished command for language {lang} and model {model}") 
+
+    # Note: if file.txt.result is empty, what ends up in the yaml is still OK thanks to L39 in post_process_results_format.py
+    print(f"Finished command for language {lang} and model {model}")
+    try:
+        with open(yaml_file, 'r') as file2concat:
+            with open(old_yaml_file, 'a') as original_file:
+                shutil.copyfileobj(file2concat, original_file)
+        os.remove(yaml_file)
+    except NameError:
+        pass
+    except FileNotFoundError:
+        pass
+
 
 #TODO decide whether to get rid of parallelization
 def run(testdata_dir: Path,
@@ -69,4 +86,7 @@ def run(testdata_dir: Path,
     # English only many models
     modality = "several_models"
     with multiprocessing.Pool(processes=max_workers) as pool:
-        pool.starmap(call_ontogpt, [("en", raw_results_dir / "multimodel", input_dir, model, modality) for model in models])
+        try:
+            pool.starmap(call_ontogpt, [("en", raw_results_dir / "multimodel", input_dir, model, modality) for model in models])
+        except FileExistsError as e:
+            raise ValueError('Did not clean up after last run, check tmp dir: \n' + e)

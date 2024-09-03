@@ -2,12 +2,14 @@ import json
 import os
 from pathlib import Path
 from typing import List
-
+import shutil
 import pandas as pd
 import yaml
 from pheval.post_processing.post_processing import PhEvalGeneResult, generate_pheval_result
 from pheval.utils.file_utils import all_files
 from pheval.utils.phenopacket_utils import GeneIdentifierUpdater, create_hgnc_dict
+from malco.post_process.df_save_util import safe_save_tsv
+
 
 
 def read_raw_result_yaml(raw_result_path: Path) -> List[dict]:
@@ -21,7 +23,7 @@ def read_raw_result_yaml(raw_result_path: Path) -> List[dict]:
         dict: Contents of the raw result file.
     """
     with open(raw_result_path, 'r') as raw_result:
-        return list(yaml.safe_load_all(raw_result))  # Load and convert to list
+        return list(yaml.safe_load_all(raw_result.read().replace(u'\x04','')))  # Load and convert to list
 
 
 def create_standardised_results(raw_results_dir: Path, output_dir: Path,
@@ -29,6 +31,7 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path,
     data = []
     for raw_result_path in raw_results_dir.iterdir():
         if raw_result_path.is_file():
+            # Cannot have further files in raw_result_path!
             all_results = read_raw_result_yaml(raw_result_path)
 
             for this_result in all_results:
@@ -37,6 +40,8 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path,
                     label = extracted_object.get('label')
                     terms = extracted_object.get('terms')
                     if terms:
+                    # Note, the if allows for rerunning ppkts that failed due to connection issues
+                    # We can have multiple identical ppkts/prompts in results.yaml as long as only one has a terms field
                         num_terms = len(terms)
                         score = [1 / (i + 1) for i in range(num_terms)]  # score is reciprocal rank
                         rank_list = [ i+1 for i in range(num_terms)]
@@ -47,8 +52,8 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path,
     df = pd.DataFrame(data)
 
     # Save DataFrame to TSV
-    output_path = output_dir / output_file_name
-    df.to_csv(output_path, sep='\t', index=False)
+    # output_path = output_dir / output_file_name
+    safe_save_tsv(output_dir, output_file_name, df)
 
     return df
 
