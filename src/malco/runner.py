@@ -52,6 +52,8 @@ class MalcoRunner(PhEvalRunner):
                 input_dir=self.input_dir,
                 langs=self.languages,
                 models=self.models)
+            # Cleanup
+            os.system(f"rm -r {self.input_dir}/prompts/tmp/")
 
 
     def post_process(self,
@@ -90,5 +92,4 @@ class MalcoRunner(PhEvalRunner):
             if print_plot:
                 make_plots(mrr_file, data_dir, self.languages, num_ppkt, self.models, topn_aggr_file, comparing)
 
-            # Cleanup
-            os.system(f"rm -r {self.input_dir}/prompts/tmp/")
+            

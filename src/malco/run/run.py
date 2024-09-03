@@ -11,23 +11,26 @@ def call_ontogpt(
     lang, raw_results_dir, input_dir, model, 
     modality: typing.Literal['several_languages', 'several_models'],
 ):
-    original_inputdir = f'{input_dir}/prompts/'
+    prompt_dir = f'{input_dir}/prompts/'
     if modality == 'several_languages':
         lang_or_model_dir = lang
-        original_inputdir += f"{lang_or_model_dir}/"
+        prompt_dir += f"{lang_or_model_dir}/"
     elif modality == 'several_models':
         lang_or_model_dir = model
-        original_inputdir += "en/"
+        prompt_dir += "en/"
     else:
         raise ValueError('not permitted run modality!\n')
 
-    selected_indir  = search_ppkts(input_dir, original_inputdir, raw_results_dir, lang_or_model_dir)
+    selected_indir  = search_ppkts(input_dir, prompt_dir, raw_results_dir, lang_or_model_dir)
     yaml_file = f"{raw_results_dir}/{lang_or_model_dir}/results.yaml"
     
     if os.path.isfile(yaml_file):
         old_yaml_file = yaml_file
         yaml_file = f"{raw_results_dir}/{lang_or_model_dir}/new_results.yaml"
-    
+        print(f"new yaml and old yaml of {model}are :")
+        print(yaml_file)
+        print(old_yaml_file)
+
     command = (
         f"ontogpt -v run-multilingual-analysis "
         f"--output={yaml_file} "  # save raw OntoGPT output

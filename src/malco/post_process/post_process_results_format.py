@@ -2,12 +2,14 @@ import json
 import os
 from pathlib import Path
 from typing import List
-
+import shutil
 import pandas as pd
 import yaml
 from pheval.post_processing.post_processing import PhEvalGeneResult, generate_pheval_result
 from pheval.utils.file_utils import all_files
 from pheval.utils.phenopacket_utils import GeneIdentifierUpdater, create_hgnc_dict
+from malco.post_process.df_save_util import safe_save_tsv
+
 
 
 def read_raw_result_yaml(raw_result_path: Path) -> List[dict]:
@@ -21,7 +23,7 @@ def read_raw_result_yaml(raw_result_path: Path) -> List[dict]:
         dict: Contents of the raw result file.
     """
     with open(raw_result_path, 'r') as raw_result:
-        return list(yaml.safe_load_all(raw_result))  # Load and convert to list
+        return list(yaml.safe_load_all(raw_result.read().replace(u'\x04','')))  # Load and convert to list
 
 
 def create_standardised_results(raw_results_dir: Path, output_dir: Path,
@@ -50,9 +52,8 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path,
     df = pd.DataFrame(data)
 
     # Save DataFrame to TSV
-    output_path = output_dir / output_file_name
-    # TODO add a check that this appending does not grow beyond reason... maybe make entries unique at the end of a run as a test?
-    df.to_csv(output_path, sep='\t', index=False)
+    # output_path = output_dir / output_file_name
+    safe_save_tsv(output_dir, output_file_name, df)
 
     return df
 

@@ -1,48 +1,51 @@
 import os
+import yaml
 import shutil
+from malco.post_process.post_process_results_format import read_raw_result_yaml
 
     
-def search_ppkts(input_dir, original_inputdir, raw_results_dir, lang_or_model):
+def search_ppkts(input_dir, prompt_dir, raw_results_dir, lang_or_model):
     """
     Check what ppkts have already been computed in current output dir, for current run parameters.
     ontogpt will run every .txt that is in inputdir, we need a tmp inputdir 
     excluding already run cases.
     """
-    diff_dir = f"{raw_results_dir}/{lang_or_model}/differentials_by_file/"
     
-    # files is a ls of diff_dir
+    # List of "labels" that are already present in results.yaml iff terms is not None
     files = []
-    # Create a list of what is in {raw_results_dir}/{lang}/differentials_by_file/
-    for (dirpath, dirnames, filenames) in os.walk(diff_dir):
-        files.extend(filenames) # list of filenames
-        break
     
-    # If no files are found, no previous run exists
-    if files==[]:
-        return original_inputdir
-    else:
+    yaml_file = f"{raw_results_dir}/{lang_or_model}/results.yaml"
+    if os.path.isfile(yaml_file):
         # tmp inputdir contains prompts yet to be computed for a given model (pars set)
         selected_indir = f"{input_dir}/prompts/tmp/{lang_or_model}"
         os.makedirs(selected_indir)
 
-    # prompts: ls original_inputdir
+        all_results = read_raw_result_yaml(yaml_file)
+        for this_result in all_results:
+            extracted_object = this_result.get("extracted_object")
+            if extracted_object:
+                label = extracted_object.get('label')
+                terms = extracted_object.get('terms')
+                if terms:
+                    # ONLY if terms is non-empty, it was successful
+                    files.append(label)
+    else:
+        return prompt_dir
+
+    
+    # prompts: ls prompt_dir
     promptfiles = []
-    for (dirpath, dirnames, filenames) in os.walk(original_inputdir):
+    for (dirpath, dirnames, filenames) in os.walk(prompt_dir):
         promptfiles.extend(filenames) 
         break
 
     # foreach promptfile in original_inputdir
     for promptfile in promptfiles:
-        # The file names are identical to the prompt file names, with an extra ".result"
-        aux = promptfile + ".result"
         # If something failed and an empty file exists, run it again
         # Copy all prompt files in the new tmp inputdir, except the ones of line above
-        if aux in files:
-            emptyfile = (os.path.getsize(diff_dir + aux)==0)
-            if not emptyfile:
-                continue
-            else:
-                shutil.copyfile(original_inputdir + promptfile, selected_indir + "/" + promptfile)
+        if promptfile in files:
+            continue
         else:
-            shutil.copyfile(original_inputdir + promptfile, selected_indir + "/" + promptfile)
+            shutil.copyfile(prompt_dir + promptfile, selected_indir + "/" + promptfile)
+
     return selected_indir

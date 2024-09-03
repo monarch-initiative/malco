@@ -5,12 +5,14 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 import pickle as pkl
+import shutil
 
 from oaklib.interfaces import OboGraphInterface
 from oaklib.datamodels.vocabulary import IS_A
 from oaklib.interfaces import MappingProviderInterface
 from oaklib import get_adapter
 
+from malco.post_process.df_save_util import safe_save_tsv
 from malco.post_process.mondo_score_utils import score_grounded_result
 from cachetools import LRUCache
 from typing import List 
@@ -57,7 +59,9 @@ def compute_mrr_and_ranks(
             if filename.startswith("result") and filename.endswith(".tsv"):
                 file_path = os.path.join(subdir, filename)
                 df = pd.read_csv(file_path, sep="\t")
-                num_ppkt = df["label"].nunique() #TODO this just picks the number of ppkts of the last dirs...
+                num_ppkt = df["label"].nunique() 
+                #TODO this just picks the number of ppkts of the last dirs...
+                # num_ppkt should be a list with one entry per model/language...
                 results_data.append(df)
                 # Append both the subdirectory relative to output_dir and the filename
                 results_files.append(os.path.relpath(file_path, output_dir))
@@ -81,23 +85,21 @@ def compute_mrr_and_ranks(
         cf.write("Timestamp: " + now_is +"\n\n")
         mondo = mondo_adapter()
         i = 0
+        # Each df is a model or a language
         for df in results_data:
             # For each label in the results file, find if the correct term is ranked
             df["rank"] = df.groupby("label")["score"].rank(ascending=False, method="first")
             label_4_non_eng = df["label"].str.replace("_[a-z][a-z]-prompt", "_en-prompt", regex=True)
-            df["correct_term"] = label_4_non_eng.map(label_to_correct_term)
 
-            # df['term'] is Mondo or OMIM ID, or even disease label
             # df['correct_term'] is an OMIM
-            # call OAK and get OMIM IDs for df['term'] and see if df['correct_term'] is one of them
-            # in the case of phenotypic series, if Mondo corresponds to grouping term, accept it
-
-            # Calculate reciprocal rank
+            # df['term'] is Mondo or OMIM ID, or even disease label
+            df["correct_term"] = label_4_non_eng.map(label_to_correct_term)
+ 
             # Make sure caching is used in the following by unwrapping explicitly
             results = []
             for idx, row in df.iterrows():
-
-                # lambda prediction, ground_truth, mondo: hashkey(prediction, ground_truth)
+                # call OAK and get OMIM IDs for df['term'] and see if df['correct_term'] is one of them
+                # in the case of phenotypic series, if Mondo corresponds to grouping term, accept it
                 k = hashkey(row['term'], row['correct_term'])
                 try:
                     val = pc2[k]
@@ -111,15 +113,15 @@ def compute_mrr_and_ranks(
                 results.append(is_correct)
 
             df['is_correct'] = results
-
             df["reciprocal_rank"] = df.apply(
                 lambda row: 1 / row["rank"] if row["is_correct"] else 0, axis=1
             )
 
             # Save full data frame
-            full_df_file = output_dir / results_files[i].split("/")[0] / "full_df_results.tsv"
-            df.to_csv(full_df_file, sep='\t', index=False)
-
+            full_df_path = output_dir / results_files[i].split("/")[0]
+            full_df_filename = "full_df_results.tsv"
+            safe_save_tsv(full_df_path, df, full_df_filename)
+            
             # Calculate MRR for this file
             mrr = df.groupby("label")["reciprocal_rank"].max().mean()
             mrr_scores.append(mrr)
@@ -162,8 +164,9 @@ def compute_mrr_and_ranks(
 
     data_dir = output_dir / "rank_data"
     data_dir.mkdir(exist_ok=True)
-    topn_file = data_dir / "topn_result.tsv"
-    rank_df.to_csv(topn_file, sep='\t', index=False)
+    topn_file_name = "topn_result.tsv"
+    topn_file = data_dir / topn_file_name
+    safe_save_tsv(data_dir, topn_file_name, rank_df)
 
     print("MRR scores are:\n")
     print(mrr_scores)
@@ -185,7 +188,12 @@ def compute_mrr_and_ranks(
     df_aggr = pd.DataFrame()
     df_aggr = pd.melt(df, id_vars=comparing, value_vars=["top1", "top3", "top5", "top10", "not_found"], var_name="Rank_in", value_name="counts")
     df_aggr["percentage"] = df_aggr["counts"]/num_ppkt
-    topn_aggr_file = data_dir / "topn_aggr.tsv"
-    df_aggr.to_csv(topn_aggr_file, sep='\t', index=False)
+
+    # If "topn_aggr.tsv" already exists, prepend "old_"
+    # It's the user's responsibility to know only up to 2 versions can exist, then data is lost
+    topn_aggr_file_name = "topn_aggr.tsv"
+    topn_aggr_file = data_dir / topn_aggr_file_name
+    safe_save_tsv(data_dir, topn_aggr_file_name, df_aggr)
         
     return mrr_file, data_dir, num_ppkt, topn_aggr_file
+                    
