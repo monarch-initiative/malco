@@ -35,19 +35,24 @@ def mondo_adapter() -> OboGraphInterface:
     return get_adapter("sqlite:obo:mondo") 
 
 def compute_mrr_and_ranks(
-    comparing, 
-    output_dir, 
-    prompt_dir, 
-    correct_answer_file,
+    comparing: str, 
+    output_dir: Path, 
+    out_subdir: str,
+    prompt_dir: str, 
+    correct_answer_file: str,
     ) -> Path:
+
     # Read in results TSVs from self.output_dir that match glob results*tsv 
+    out_caches = output_dir / "caches"
+    out_caches.mkdir(exist_ok=True)
+    output_dir = output_dir / out_subdir
     results_data = []
     results_files = []
     num_ppkt = 0
-    pc2_cache_file = str(output_dir / "score_grounded_result_cache")
-    pc2 = PersistentCache(LRUCache, pc2_cache_file, maxsize=4096)        
-    pc1_cache_file = str(output_dir / "omim_mappings_cache")
-    pc1 = PersistentCache(LRUCache, pc1_cache_file, maxsize=16384)
+    pc2_cache_file = str(out_caches / "score_grounded_result_cache")
+    pc2 = PersistentCache(LRUCache, pc2_cache_file, maxsize=524288)        
+    pc1_cache_file = str(out_caches / "omim_mappings_cache")
+    pc1 = PersistentCache(LRUCache, pc1_cache_file, maxsize=524288)
     # Treat hits and misses as run-specific arguments, write them cache_log
     pc1.hits = pc1.misses = 0
     pc2.hits = pc2.misses = 0
@@ -78,7 +83,7 @@ def compute_mrr_and_ranks(
     header = [comparing, "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n10p", "nf"]
     rank_df = pd.DataFrame(0, index=np.arange(len(results_files)), columns=header)
 
-    cache_file = output_dir / "cache_log.txt"
+    cache_file = out_caches / "cache_log.txt"
 
     with cache_file.open('a', newline = '') as cf:
         now_is = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -120,7 +125,7 @@ def compute_mrr_and_ranks(
             # Save full data frame
             full_df_path = output_dir / results_files[i].split("/")[0]
             full_df_filename = "full_df_results.tsv"
-            safe_save_tsv(full_df_path, df, full_df_filename)
+            safe_save_tsv(full_df_path, full_df_filename, df)
             
             # Calculate MRR for this file
             mrr = df.groupby("label")["reciprocal_rank"].max().mean()
