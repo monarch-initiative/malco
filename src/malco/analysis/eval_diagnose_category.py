@@ -80,6 +80,7 @@ count_fails=0
 
 omim_wo_match = {}
 for ppkt in ppkts:
+    breakpoint()
     # find this phenopackets category <cat> from OMIM
     category_index = find_category(ppkt[1].iloc[0]["correct_term"], dc_list, mondo)
     if not category_index:
@@ -88,7 +89,7 @@ for ppkt in ppkts:
         omim_wo_match[ppkt[0]] = ppkt[1].iloc[0]["correct_term"]
         continue
     #cat_ind = find_cat_index(category)
-    # is there a true? ppkt is tuple ("filename", dataframe) --> ppkt[1] is a dataframe 
+    # is there a true? ppkt is tuple ("filename"/"label"/what has been used for grouping, dataframe) --> ppkt[1] is a dataframe 
     if not any(ppkt[1]["is_correct"]):
         # no  --> increase <cat> incorrect
         contingency_table.loc[category_index, "incorrect"] += 1
