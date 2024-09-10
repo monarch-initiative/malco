@@ -1,0 +1,166 @@
+Timestamp: 20240821-140112
+
+gpt-4o/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=15970, misses=8315, maxsize=4096, currsize=4096
+omim_mappings cache info:
+CacheInfo: hits=90813, misses=14568, maxsize=16384, currsize=14568
+
+gpt-4/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=29929, misses=17045, maxsize=4096, currsize=4096
+omim_mappings cache info:
+CacheInfo: hits=189862, misses=18113, maxsize=16384, currsize=16384
+
+gpt-4-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=36854, misses=19422, maxsize=4096, currsize=4096
+omim_mappings cache info:
+CacheInfo: hits=220689, misses=18252, maxsize=16384, currsize=16384
+
+gpt-3.5-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=56160, misses=25978, maxsize=4096, currsize=4096
+omim_mappings cache info:
+CacheInfo: hits=326321, misses=19439, maxsize=16384, currsize=16384
+
+Timestamp: 20240822-193603
+
+gpt-4o/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=23718, misses=10045, maxsize=4096, currsize=4096
+omim_mappings cache info:
+CacheInfo: hits=118177, misses=5610, maxsize=16384, currsize=16384
+
+gpt-4/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=53220, misses=27955, maxsize=4096, currsize=4096
+omim_mappings cache info:
+CacheInfo: hits=316509, misses=9986, maxsize=16384, currsize=16384
+
+gpt-4-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=81216, misses=36794, maxsize=4096, currsize=4096
+omim_mappings cache info:
+CacheInfo: hits=425550, misses=10637, maxsize=16384, currsize=16384
+
+gpt-3.5-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=100499, misses=43378, maxsize=4096, currsize=4096
+omim_mappings cache info:
+CacheInfo: hits=532067, misses=11525, maxsize=16384, currsize=16384
+
+Timestamp: 20240828-114052
+
+gpt-4o/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=23726, misses=10037, maxsize=4096, currsize=4096
+omim_mappings cache info:
+CacheInfo: hits=116389, misses=7706, maxsize=16384, currsize=16384
+
+Timestamp: 20240903-201528
+
+Timestamp: 20240904-111909
+
+gpt-4o/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=33763, misses=0, maxsize=524288, currsize=12774
+omim_mappings cache info:
+CacheInfo: hits=0, misses=0, maxsize=524288, currsize=0
+
+gpt-4/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=74660, misses=6556, maxsize=524288, currsize=19330
+omim_mappings cache info:
+CacheInfo: hits=64985, misses=8, maxsize=524288, currsize=20618
+
+gpt-4-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=109269, misses=8782, maxsize=524288, currsize=21556
+omim_mappings cache info:
+CacheInfo: hits=90157, misses=8, maxsize=524288, currsize=20618
+
+gpt-3.5-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=134134, misses=9936, maxsize=524288, currsize=22710
+omim_mappings cache info:
+CacheInfo: hits=115413, misses=10, maxsize=524288, currsize=20620
+
+Timestamp: 20240904-115833
+
+gpt-4o/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=33763, misses=0, maxsize=524288, currsize=22710
+omim_mappings cache info:
+CacheInfo: hits=0, misses=0, maxsize=524288, currsize=0
+
+gpt-4/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=81216, misses=0, maxsize=524288, currsize=22710
+omim_mappings cache info:
+CacheInfo: hits=0, misses=0, maxsize=524288, currsize=0
+
+gpt-4-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=118051, misses=0, maxsize=524288, currsize=22710
+omim_mappings cache info:
+CacheInfo: hits=0, misses=0, maxsize=524288, currsize=0
+
+gpt-3.5-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=144070, misses=0, maxsize=524288, currsize=22710
+omim_mappings cache info:
+CacheInfo: hits=0, misses=0, maxsize=524288, currsize=0
+
+Timestamp: 20240904-121924
+
+gpt-4o/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=33763, misses=0, maxsize=524288, currsize=22710
+omim_mappings cache info:
+CacheInfo: hits=0, misses=0, maxsize=524288, currsize=0
+
+gpt-4/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=81216, misses=0, maxsize=524288, currsize=22710
+omim_mappings cache info:
+CacheInfo: hits=0, misses=0, maxsize=524288, currsize=0
+
+gpt-4-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=118051, misses=0, maxsize=524288, currsize=22710
+omim_mappings cache info:
+CacheInfo: hits=0, misses=0, maxsize=524288, currsize=0
+
+gpt-3.5-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=144070, misses=0, maxsize=524288, currsize=22710
+omim_mappings cache info:
+CacheInfo: hits=0, misses=0, maxsize=524288, currsize=0
+
+Timestamp: 20240905-132835
+
+gpt-4o/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=39813, misses=2626, maxsize=524288, currsize=25336
+omim_mappings cache info:
+CacheInfo: hits=21842, misses=279, maxsize=524288, currsize=20899
+
+gpt-4/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=97434, misses=5307, maxsize=524288, currsize=28017
+omim_mappings cache info:
+CacheInfo: hits=53565, misses=936, maxsize=524288, currsize=21556
+
+gpt-4-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=143644, misses=6097, maxsize=524288, currsize=28807
+omim_mappings cache info:
+CacheInfo: hits=62521, misses=1074, maxsize=524288, currsize=21694
+
+gpt-3.5-turbo/results.tsv
+score_grounded_result cache info:
+CacheInfo: hits=176206, misses=6703, maxsize=524288, currsize=29413
+omim_mappings cache info:
+CacheInfo: hits=80073, misses=2993, maxsize=524288, currsize=23613
+

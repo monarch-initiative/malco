@@ -43,7 +43,8 @@ def compute_mrr_and_ranks(
     ) -> Path:
 
     # Read in results TSVs from self.output_dir that match glob results*tsv 
-    out_caches = output_dir / "caches"
+    out_caches = Path("caches")
+    #out_caches = output_dir / "caches"
     out_caches.mkdir(exist_ok=True)
     output_dir = output_dir / out_subdir
     results_data = []
