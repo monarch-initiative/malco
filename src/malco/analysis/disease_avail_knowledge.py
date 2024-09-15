@@ -12,6 +12,9 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# (1) HPOA for dates
+# HPOA import and setup
 hpoa_file_path = "/Users/leonardo/IdeaProjects/maxodiff/data/phenotype.hpoa"
 hpoa_df = pd.read_csv(
         hpoa_file_path, sep="\t" , header=4
@@ -21,16 +24,18 @@ hpoa_cleaned = pd.DataFrame()
 hpoa_cleaned["database_id"] = hpoa_df["database_id"]
 hpoa_cleaned['date'] = hpoa_df["biocuration"].str.extract(r'\[(.*?)\]')
 #string_dates = str(hpoa_df["biocuration"].str.extract(r'\[(.*?)\]'))
-# Mi sto un po attorcigliando, sarebbe da, semplicemente, fare un color coding
+
 #hpoa_cleaned['date'] = [dt.datetime.strptime(day, '%Y-%m-%d').date() for day in string_dates]
 hpoa_cleaned = hpoa_cleaned[hpoa_cleaned['database_id'].str.startswith("OMIM")]
 
+# import df of results
 model = str(sys.argv[1])
 ranking_results_filename = f"out_openAI_models/multimodel/{model}/full_df_results.tsv"
 rank_results_df = pd.read_csv(
         ranking_results_filename, sep="\t" 
     )
 
+# go through results data and make set of found vs not found diseases
 found_diseases = []
 not_found_diseases = []
 ppkts = rank_results_df.groupby("label")[["term", "correct_term", "is_correct"]] 
@@ -44,6 +49,8 @@ for ppkt in ppkts:
 
 found_set = set(found_diseases)
 notfound_set = set(not_found_diseases)
+
+# compute the overlap of found vs not-found disesases
 overlap = []
 
 for i in found_set:
@@ -57,13 +64,15 @@ print(f"Found diseases also present in not-found set, by {model} is {len(overlap
 
 # header = ["disease_id", "found", "date"]
 
-# Problematic, goes from 27 k unique values to 8.2k
+# Problematic, with the following HPOA goes from 27 k unique values to 8.2k
+# TODO for each set of associations, take the first available as ground truth date 
 hpoa_cleaned = hpoa_cleaned.drop_duplicates(subset='database_id')
 # Idea here could be to look at the 263-129 (gpt-4o) found diseases not present in not found set and the opposite
 # namely never found diseases and look for a correlation with date.
 always_found = found_set - notfound_set # 134
 never_found = notfound_set - found_set # 213
 
+# Compute average date of always vs never found diseases
 results_dict = {} # turns out being 281 long 
 found_dict = {}
 notfound_dict = {}
@@ -90,3 +99,9 @@ res_to_clean.columns=["found","date"]
 res_to_clean.date = pd.to_datetime(res_to_clean.date).values.astype(np.int64)
 final_avg = pd.DataFrame(pd.to_datetime(res_to_clean.groupby('found').mean().date))
 print(final_avg)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# (0) Number of phenotypes in each phenopacket
+# Try to make a classifier with number of phenotypes asserted and excluded.
+# Another dimension could be IC present in each ppkt, measured how, though?
+# Or maybe, the 3 above + date as 4 feautres: 4 dimensional logistic regression or SVM with gausskernel
