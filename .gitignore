@@ -8,3 +8,4 @@ outputdir
 inputdir/all_phenopackets.zip
 inputdir/phenopacket-store/
 .openai_cache.db
+supplemental_data/
