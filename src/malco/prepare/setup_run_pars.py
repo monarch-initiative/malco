@@ -1,5 +1,6 @@
 # setup_run_pars
 import csv
+import sys
 
 def import_inputdata(self):
     """Example inputfile is located in input_dir and named run_parameters.csv
@@ -26,10 +27,22 @@ def import_inputdata(self):
         in_models = next(lines)
         in_what_to_run = next(lines)
 
+    l = len(in_langs)
+    m = len(in_models)
+    if (l > 1 and m > 1):
+        sys.exit("Error, either run multiple languages or models, not both, exiting...")
+    elif l == 1 and m >= 1:
+        if in_langs[0]=="en":
+            self.modality = "several_models" # English and more than 1 model defaults to multiple models
+        else:
+            if m > 1:
+                sys.exit("Error, only English and multiple models supported, exiting...")
+            else: # m==1
+                self.modality = "several_languages" # non English defaults to multiple languages
+    elif l > 1: 
+        self.modality = "several_languages"
 
     self.languages = tuple(in_langs)
-    #self.languages = ("en", "es", "nl", "it", "de")
-    #self.models = ("gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o") # Decide on list of models: Claude-Sonnet (Anthropic key), 
     self.models =  tuple(in_models)
     self.do_run_step = in_what_to_run[0]          # only run the run part of the code
     self.do_postprocess_step = in_what_to_run[1]  # only run the postprocess part of the code

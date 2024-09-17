@@ -19,7 +19,7 @@ def call_ontogpt(
         lang_or_model_dir = model
         prompt_dir += "en/"
     else:
-        raise ValueError('not permitted run modality!\n')
+        raise ValueError('Not permitted run modality!\n')
 
     selected_indir  = search_ppkts(input_dir, prompt_dir, raw_results_dir, lang_or_model_dir)
     yaml_file = f"{raw_results_dir}/{lang_or_model_dir}/results.yaml"
@@ -56,12 +56,7 @@ def call_ontogpt(
         pass
 
 
-#TODO decide whether to get rid of parallelization
-def run(testdata_dir: Path,
-        raw_results_dir: Path,
-        input_dir: Path,
-        langs: tuple,
-        models: tuple,
+def run(self,
         max_workers: int = None) -> None:
     """
     Run the tool to obtain the raw results.
@@ -73,20 +68,28 @@ def run(testdata_dir: Path,
         langs: Tuple of languages.
         max_workers: Maximum number of worker processes to use.
     """
+    testdata_dir = self.testdata_dir
+    raw_results_dir = self.raw_results_dir
+    input_dir = self.input_dir
+    langs = self.languages
+    models = self.models
+    modality = self.modality
 
     if max_workers is None:
         max_workers = multiprocessing.cpu_count()
 
-    '''
-    modality = "several_languages"
-    with multiprocessing.Pool(processes=max_workers) as pool:
-        pool.starmap(call_ontogpt, [(lang, raw_results_dir / "multilingual", input_dir, "gpt-4-turbo", modality) for lang in langs])
-    '''
-    
-    # English only many models
-    modality = "several_models"
-    with multiprocessing.Pool(processes=max_workers) as pool:
-        try:
-            pool.starmap(call_ontogpt, [("en", raw_results_dir / "multimodel", input_dir, model, modality) for model in models])
-        except FileExistsError as e:
-            raise ValueError('Did not clean up after last run, check tmp dir: \n' + e)
+    if modality == "several_languages":
+        with multiprocessing.Pool(processes=max_workers) as pool:
+            try:
+                pool.starmap(call_ontogpt, [(lang, raw_results_dir / "multilingual", input_dir, "gpt-4o", modality) for lang in langs])
+            except FileExistsError as e:
+                raise ValueError('Did not clean up after last run, check tmp dir: \n' + e)
+
+
+    if modality == "several_models":
+        # English only many models
+        with multiprocessing.Pool(processes=max_workers) as pool:
+            try:
+                pool.starmap(call_ontogpt, [("en", raw_results_dir / "multimodel", input_dir, model, modality) for model in models])
+            except FileExistsError as e:
+                raise ValueError('Did not clean up after last run, check tmp dir: \n' + e)

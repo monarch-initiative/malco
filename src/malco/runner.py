@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-
+from shutil import rmtree
 from pheval.runners.runner import PhEvalRunner
 
 from malco.post_process.ranking_utils import compute_mrr_and_ranks
@@ -11,7 +11,7 @@ from malco.prepare.setup_run_pars import import_inputdata
 from malco.post_process.generate_plots import make_plots
 import os
 
-@dataclass # (N) if PhevalRunner is already one?
+@dataclass # necessary if PhevalRunner is already one?
 class MalcoRunner(PhEvalRunner):
     input_dir: Path
     testdata_dir: Path
@@ -19,11 +19,6 @@ class MalcoRunner(PhEvalRunner):
     output_dir: Path
     config_file: Path
     version: str
-    #TODO Declaring the following does not work
-    #languages: tuple
-    #models: tuple
-    #just_run: bool
-    #just_postprocess: bool  
 
 
     def prepare(self):
@@ -40,13 +35,12 @@ class MalcoRunner(PhEvalRunner):
         print("running with predictor")
         pass
         if self.do_run_step:
-            run(testdata_dir=self.testdata_dir,
-                raw_results_dir=self.raw_results_dir,
-                input_dir=self.input_dir,
-                langs=self.languages,
-                models=self.models)
+            run(self,
+            )
             # Cleanup
-            os.system(f"rm -r {self.input_dir}/prompts/tmp/")
+            tmp_dir = f"{self.input_dir}/prompts/tmp/"
+            if os.path.isdir(tmp_dir):
+                rmtree(tmp_dir)
 
 
     def post_process(self,
@@ -60,31 +54,25 @@ class MalcoRunner(PhEvalRunner):
         if self.do_postprocess_step:
             print("post processing results to PhEval standardised TSV output.")
 
-            post_process(raw_results_dir=self.raw_results_dir,
-                        output_dir=self.output_dir,
-                        langs=self.languages,
-                        models=self.models)
+            post_process(self)
             
-            '''
-            comparing = "language"
-            mrr_file, plot_dir, num_ppkt, topn_aggr_file = compute_mrr_and_ranks(comparing,
-                output_dir=self.output_dir,
-                out_subdir="multilingual",
-                prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
-                correct_answer_file=correct_answer_file)
             
-            if print_plot:
-                make_plots(mrr_file, plot_dir, self.languages, num_ppkt, self.models, topn_aggr_file, comparing)
-            
-            '''
-            comparing = "model"
+            if self.modality=="several_languages":
+                comparing = "language"
+                out_subdir="multilingual"
+            elif self.modality=="several_models":
+                comparing = "model"
+                out_subdir="multimodel"
+            else:
+                raise ValueError('Not permitted run modality!\n')
+
             mrr_file, data_dir, num_ppkt, topn_aggr_file = compute_mrr_and_ranks(comparing,
                 output_dir=self.output_dir,
-                out_subdir="multimodel",
+                out_subdir=out_subdir,
                 prompt_dir=os.path.join(self.input_dir, prompts_subdir_name),
                 correct_answer_file=correct_answer_file)
             
             if print_plot:
                 make_plots(mrr_file, data_dir, self.languages, num_ppkt, self.models, topn_aggr_file, comparing)
-
+            
             
