@@ -9,3 +9,4 @@ inputdir/all_phenopackets.zip
 inputdir/phenopacket-store/
 .openai_cache.db
 supplemental_data/
+outputdir_all_2024_07_04/
