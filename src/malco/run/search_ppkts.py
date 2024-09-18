@@ -7,8 +7,12 @@ from malco.post_process.post_process_results_format import read_raw_result_yaml
 def search_ppkts(input_dir, prompt_dir, raw_results_dir, lang_or_model):
     """
     Check what ppkts have already been computed in current output dir, for current run parameters.
+    
     ontogpt will run every .txt that is in inputdir, we need a tmp inputdir 
-    excluding already run cases.
+    excluding already run cases. Source of truth is the results.yaml output by ontogpt.
+    Only extracted_object containing terms is considered successfully run.
+
+    Note that rerunning 
     """
     
     # List of "labels" that are already present in results.yaml iff terms is not None

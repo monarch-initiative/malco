@@ -2,8 +2,9 @@
 import csv
 import sys
 
-def import_inputdata(self):
-    """Example inputfile is located in input_dir and named run_parameters.csv
+def import_inputdata(self) -> None:
+    """
+    Example input file is located in ``self.input_dir`` and named run_parameters.csv
     It should contain something like:
     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     "en"

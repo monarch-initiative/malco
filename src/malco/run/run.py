@@ -8,9 +8,25 @@ import typing
 from malco.run.search_ppkts import search_ppkts
 
 def call_ontogpt(
-    lang, raw_results_dir, input_dir, model, 
+    lang: str, 
+    raw_results_dir: Path, 
+    input_dir: Path, 
+    model: str, 
     modality: typing.Literal['several_languages', 'several_models'],
-):
+)-> None:
+    """
+    Wrapper used for parallel execution of ontogpt.
+
+    Args:
+        lang (str): Two-letter language code, for example "en" for English.
+        raw_results_dir (Path): Path to the raw results directory.
+        output_dir (Path): Path to the output directory.
+        model (str): Name of the model to be run, e.g. "gpt-4-turbo".
+        modality (str): Determines whether English and several models or gpt-4o and several languages are being run.
+
+    Returns:
+        None
+    """
     prompt_dir = f'{input_dir}/prompts/'
     if modality == 'several_languages':
         lang_or_model_dir = lang

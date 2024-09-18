@@ -10,6 +10,7 @@ pytest:
 
 test-docs:
 	$(DOCTEST) src/malco/*.py src/malco/*/*.py
+	$(DOCTEST) src/malco/runner.py src/malco/run/*.py src/malco/prepare/*.py src/malco/post_process/*.py 
 
 %-doctest: %
 	$(DOCTEST) $<

@@ -4,6 +4,7 @@
 # (1) Parse out disease genes discovered after 2008/9 (First thing in HPOA)
 #     Look for a correlation between date annotated and disease correctly diagnosed. 
 #     Hypothesis: the older the easier to diagnose
+#     PNR suggests: for each ppkt we have a date 
 # (2) To start, looking at the two broad categories found/not-found, count average number of all links
 #     After that, count average number of links of some kind
 #     Then, something more graphy, such as, centrality? Maybe need to project out something first to find signal in the noise...
