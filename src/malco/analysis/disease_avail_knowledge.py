@@ -4,7 +4,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The main points are using time, namely dates of discovery, as a way to capture how much of a 
 # disease is present in the web. This is a proxy for how much an LLM knows about such a diseases.
-# We use HPOA, we need to parse out disease genes discovered after 2008 or 9 (First thing in HPOA)
+# We use HPOA, we do not parse out disease genes discovered after 2008 though (first thing in HPOA)
 # 
 # Then we could look at some IC(prompt) as a second proxy.
 #
@@ -19,6 +19,7 @@ import datetime as dt
 from pathlib import Path
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import seaborn as sns
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # (1) HPOA for dates
 # HPOA import and setup
@@ -27,7 +28,8 @@ hpoa_df = pd.read_csv(
         hpoa_file_path, sep="\t" , header=4
     )
 
-labels_to_drop = ["disease_name", "qualifier", "hpo_id", "reference", "evidence", "onset", "frequency", "sex", "modifier", "aspect"]
+labels_to_drop = ["disease_name", "qualifier", "hpo_id", "reference", "evidence",
+                   "onset", "frequency", "sex", "modifier", "aspect"]
 hpoa_df = hpoa_df.drop(columns=labels_to_drop)
 
 hpoa_df['date'] = hpoa_df["biocuration"].str.extract(r'\[(.*?)\]')
@@ -57,11 +59,13 @@ ppkts = rank_results_df.groupby("label")[["term", "correct_term", "is_correct", 
 for ppkt in ppkts:
     # is there a true? ppkt is tuple ("filename", dataframe) --> ppkt[1] is a dataframe 
    disease = ppkt[1].iloc[0]['correct_term']
+
    if any(ppkt[1]["is_correct"]):
       found_diseases.append(disease)
       index_of_match = ppkt[1]["is_correct"].to_list().index(True)
       try:
-         inverse_rank = 1/ppkt[1].iloc[index_of_match]["rank"] # np.float64
+         #inverse_rank = 1/ppkt[1].iloc[index_of_match]["rank"] # np.float64
+         inverse_rank = ppkt[1].iloc[index_of_match]["rank"] # np.float64
          rank_date_dict[ppkt[0]] = [inverse_rank.item(), 
                                     hpoa_unique.loc[ppkt[1].iloc[0]["correct_term"]]]
       except (ValueError, KeyError) as e:
@@ -69,8 +73,9 @@ for ppkt in ppkts:
 
    else: 
       not_found_diseases.append(disease)
+      continue # only use diseases that have been found
       try:
-         rank_date_dict[ppkt[0]] = [0.0, 
+         rank_date_dict[ppkt[0]] = [None, # only use diseases that have been found
                                     hpoa_unique.loc[ppkt[1].iloc[0]["correct_term"]]]
       except (ValueError, KeyError) as e:
          print(f"Error {e} for {ppkt[0]}, disease {ppkt[1].iloc[0]['correct_term']}.")
@@ -83,8 +88,8 @@ for ppkt in ppkts:
 # Do linear regression of box plot of ppkts' 1/r vs time
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot TODO
-plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=365))
+#plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+#plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=365))
 dates = []
 invranks = []
 for key, data in rank_date_dict.items():
@@ -95,14 +100,26 @@ for key, data in rank_date_dict.items():
     dates.append(dt.datetime.strptime(data[1], '%Y-%m-%d').date())
     invranks.append(data[0])
 
-plt.plot(dates, invranks, 'xr')
 #plt.legend()
-plt.gcf().autofmt_xdate()
-plt.show()
-breakpoint()
+#plt.plot(dates, invranks, 'xr')
+#plt.gcf().autofmt_xdate()
+#plt.show()
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Correlation coefficient TODO
+years_only = []
+for i in range(len(dates)): 
+   years_only.append(dates[i].year)
 
+sns.boxplot(x=years_only,y=invranks)
+plt.xlabel("Year of HPOA annotation")
+plt.ylabel("Rank")
+plt.title("LLM performance uncorrelated with date of discovery")
+plt.show()
+
+#years_range = np.array([i for i in range(2009,2025)]) # bins
+#year_indices = np.digitize(years_only,years_range)
+breakpoint()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Statistical test TODO
 
@@ -110,9 +127,10 @@ breakpoint()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Analysis of found vs not-found
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 found_set = set(found_diseases)
 notfound_set = set(not_found_diseases)
+all_set = found_set | notfound_set
+# len(all_set) --> 476
 
 # compute the overlap of found vs not-found disesases
 overlap = []
@@ -134,6 +152,7 @@ print(f"Found diseases also present in not-found set, by {model} is {len(overlap
 
 always_found = found_set - notfound_set # 134
 never_found = notfound_set - found_set # 213
+# meaning 347/476, 27% sometimes found sometimes not, 28% always found, 45% never found.
 
 # Compute average date of always vs never found diseases
 results_dict = {} # turns out being 281 long 
@@ -162,8 +181,8 @@ for nf in never_found:
 
 res_to_clean = pd.DataFrame.from_dict(results_dict).transpose()
 res_to_clean.columns=["found","date"]
-res_to_clean.date = pd.to_datetime(res_to_clean.date).values.astype(np.int64)
-final_avg = pd.DataFrame(pd.to_datetime(res_to_clean.groupby('found').mean().date))
+res_to_clean['date'] = pd.to_datetime(res_to_clean.date).values.astype(np.int64)
+final_avg = pd.DataFrame(pd.to_datetime(res_to_clean.groupby('found').mean()['date']))
 print(final_avg)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
