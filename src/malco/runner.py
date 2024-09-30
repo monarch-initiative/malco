@@ -11,7 +11,6 @@ from malco.prepare.setup_run_pars import import_inputdata
 from malco.post_process.generate_plots import make_plots
 import os
 
-@dataclass # necessary if PhevalRunner is already one?
 class MalcoRunner(PhEvalRunner):
     input_dir: Path
     testdata_dir: Path

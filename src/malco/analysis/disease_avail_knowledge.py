@@ -1,18 +1,22 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This script looks for correlations between the ability of an LLM to 
-# diagnose the correct disease and certain parameters.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The main points are using time, namely dates of discovery, as a way to capture how much of a 
-# disease is present in the web. This is a proxy for how much an LLM knows about such a diseases.
-# We use HPOA, we do not parse out disease genes discovered after 2008 though (first thing in HPOA)
-# 
-# Then we could look at some IC(prompt) as a second proxy.
-#
-# Finally, if the two things correlate, can we use them to train a logit or SVM to predict whether
-# the LLM will be successfull or not?
+"""This script looks for correlations between the ability of an LLM to 
+diagnose the correct disease and certain parameters.
+
+(1) The first idea is using time, namely dates of discovery, as a way to capture how much of a 
+disease is present in the web. This is a proxy for how much an LLM knows about such a diseases.
+We use HPOA, we do not parse out disease genes discovered after 2008 though (first thing in HPOA)
+
+(2) Then we could look at some IC(prompt) as a second proxy. To start, avg(IC) as computed with
+
+`runoak -g hpoa_file -G hpoa -i hpo_file  information-content -p i --use-associations .all`
+
+Finally, if the two things correlate, can we use them to train a logit or SVM to predict whether
+the LLM will be successfull or not?
+"""
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import sys
+import os
 import pandas as pd
 import numpy as np
 import datetime as dt
@@ -20,6 +24,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
+import json
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # (1) HPOA for dates
 # HPOA import and setup
@@ -65,8 +70,8 @@ for ppkt in ppkts:
       index_of_match = ppkt[1]["is_correct"].to_list().index(True)
       try:
          #inverse_rank = 1/ppkt[1].iloc[index_of_match]["rank"] # np.float64
-         inverse_rank = ppkt[1].iloc[index_of_match]["rank"] # np.float64
-         rank_date_dict[ppkt[0]] = [inverse_rank.item(), 
+         rank = ppkt[1].iloc[index_of_match]["rank"] # np.float64
+         rank_date_dict[ppkt[0]] = [rank.item(), 
                                     hpoa_unique.loc[ppkt[1].iloc[0]["correct_term"]]]
       except (ValueError, KeyError) as e:
          print(f"Error {e} for {ppkt[0]}, disease {ppkt[1].iloc[0]['correct_term']}.")
@@ -85,44 +90,117 @@ for ppkt in ppkts:
 # len(ppkts) --> 6687
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Do linear regression of box plot of ppkts' 1/r vs time
+# Do linear regression of box plot of ppkts' rank vs time
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Plot TODO
 #plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 #plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=365))
 dates = []
-invranks = []
+ranks = []
 for key, data in rank_date_dict.items():
     #rank, date_str = zip(*data_list)  # Unpack
     # necessary to convert to date object?
     #dates = convert_str_to_dates(dates_str)  # Not handled in example
     #plt.plot(date_str, rank, label=key)
     dates.append(dt.datetime.strptime(data[1], '%Y-%m-%d').date())
-    invranks.append(data[0])
+    ranks.append(data[0])
 
 #plt.legend()
-#plt.plot(dates, invranks, 'xr')
+#plt.plot(dates, ranks, 'xr')
 #plt.gcf().autofmt_xdate()
 #plt.show()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Correlation coefficient TODO
+# Correlation? Not evident from the following:
 years_only = []
 for i in range(len(dates)): 
    years_only.append(dates[i].year)
 
-sns.boxplot(x=years_only,y=invranks)
+sns.boxplot(x=years_only,y=ranks)
 plt.xlabel("Year of HPOA annotation")
 plt.ylabel("Rank")
 plt.title("LLM performance uncorrelated with date of discovery")
-plt.show()
+#plt.show()
 
 #years_range = np.array([i for i in range(2009,2025)]) # bins
 #year_indices = np.digitize(years_only,years_range)
-breakpoint()
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Statistical test TODO
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Statistical test, simplest idea: chi2 of contingency table with:
+# y<=2009 and y>2009 clmns and found vs not-found counts, one count per ppkt
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# IC: For each phenpacket, list observed HPOs and compute average IC. Is it correlated with 
+# success? I.e., start with f/nf, 1/0 on y-axis vs avg(IC) on x-axis
+
+# Import file as dict
+ic_file = "data/ic_hpoa.txt"
+with open(ic_file) as f:
+    ic_dict = dict(i.rstrip().split(None, 1) for i in f)
+
+
+original_ppkt_dir = Path.home() / "data" / "phenopacket-store"
+ppkt_ic = {}
+missing_in_ic_dict = []
+ppkts_with_zero_hpos = []
+
+# Iterate over ppkts, which are json. 
+for subdir, dirs, files in os.walk(original_ppkt_dir):
+   # For each ppkt
+   for filename in files:
+      if filename.endswith('.json'):
+         file_path = os.path.join(subdir, filename)
+         with open(file_path, mode="r", encoding="utf-8") as read_file:
+            ppkt = json.load(read_file)
+         ic = 0 
+         num_hpos = 0
+         # For each HPO
+         for i in ppkt['phenotypicFeatures']:
+            try:
+               if i["excluded"]: # skip excluded
+                  continue
+            except KeyError:
+               pass
+            hpo = i["type"]["id"]
+            try:
+               ic += float(ic_dict[hpo])
+               num_hpos += 1
+            except KeyError as e:
+               missing_in_ic_dict.append(e.args[0])
+               #print(f"No entry for {e}.")
+            
+         # For now we are fine with average IC
+         try:
+            ppkt_ic[ppkt["id"]] = ic/num_hpos
+         except ZeroDivisionError as e:
+            ppkts_with_zero_hpos.append(ppkt["id"])
+            #print(f"No HPOs for {ppkt["id"]}.")
+
+missing_in_ic_dict_unique = set(missing_in_ic_dict)
+print(f"\nNumber of HPOs without IC-value is {len(missing_in_ic_dict_unique)}.") # 191
+print(f"Number of ppkts with zero observed HPOs is {len(ppkts_with_zero_hpos)}.\n") # 141
+breakpoint()
+ppkt_ic_df = pd.DataFrame.from_dict(ppkt_ic, orient='index', columns=['avg(IC)'])
+ppkt_ic_df['Diagnosed'] = 0
+
+still_missing = []
+
+for ppkt in ppkts:
+   if any(ppkt[1]["is_correct"]):
+      ppkt_label = ppkt[0][0:-14]
+      try:
+         ppkt_ic_df.loc[ppkt_label,'Diagnosed'] = 1 
+         # somehow this code generates new entries in df. From a code perspective it's bad and
+         # should be changed, but before, why? Is there some error? TODO
+      except :
+         if ppkt_label in ppkts_with_zero_hpos:
+            continue
+         else:
+            still_missing.append(ppkt_label)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Analysis of found vs not-found
@@ -142,11 +220,8 @@ for i in found_set:
 print(f"Number of found diseases by {model} is {len(found_set)}.")
 print(f"Number of not found diseases by {model} is {len(notfound_set)}.")
 print(f"Found diseases also present in not-found set, by {model} is {len(overlap)}.\n")
-# Need some more statistic
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# One Idea 
 # Look at the 263-129 (gpt-4o) found diseases not present in not-found set ("always found") 
 # and the opposite namely "never found" diseases. Average date of two sets is?
 
@@ -164,7 +239,6 @@ results_df = pd.DataFrame(columns=["disease", "found", "date"])
 hpoa_df.drop_duplicates(subset='database_id', inplace=True)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 for af in always_found:
    try:
       results_dict[af] = [True, hpoa_df.loc[hpoa_df['database_id'] == af, 'date'].item() ]
