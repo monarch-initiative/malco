@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
 import json
+import re
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # (1) HPOA for dates
 # HPOA import and setup
@@ -115,10 +116,10 @@ years_only = []
 for i in range(len(dates)): 
    years_only.append(dates[i].year)
 
-sns.boxplot(x=years_only,y=ranks)
-plt.xlabel("Year of HPOA annotation")
-plt.ylabel("Rank")
-plt.title("LLM performance uncorrelated with date of discovery")
+# sns.boxplot(x=years_only,y=ranks)
+# plt.xlabel("Year of HPOA annotation")
+# plt.ylabel("Rank")
+# plt.title("LLM performance uncorrelated with date of discovery")
 #plt.show()
 
 #years_range = np.array([i for i in range(2009,2025)]) # bins
@@ -145,14 +146,19 @@ ppkt_ic = {}
 missing_in_ic_dict = []
 ppkts_with_zero_hpos = []
 
+ppkts_with_missing_hpos = []
+sanity_check = 0
 # Iterate over ppkts, which are json. 
 for subdir, dirs, files in os.walk(original_ppkt_dir):
    # For each ppkt
    for filename in files:
       if filename.endswith('.json'):
+         sanity_check += 1
          file_path = os.path.join(subdir, filename)
          with open(file_path, mode="r", encoding="utf-8") as read_file:
             ppkt = json.load(read_file)
+         ppkt_id = re.sub('[^\\w]', '_', ppkt['id'])
+         # replaceAll("[^\\w]","_")
          ic = 0 
          num_hpos = 0
          # For each HPO
@@ -168,39 +174,88 @@ for subdir, dirs, files in os.walk(original_ppkt_dir):
                num_hpos += 1
             except KeyError as e:
                missing_in_ic_dict.append(e.args[0])
+               ppkts_with_missing_hpos.append(ppkt_id)
+
                #print(f"No entry for {e}.")
             
          # For now we are fine with average IC
          try:
-            ppkt_ic[ppkt["id"]] = ic/num_hpos
-         except ZeroDivisionError as e:
-            ppkts_with_zero_hpos.append(ppkt["id"])
+            ppkt_ic[ppkt_id] = ic/num_hpos
+         except ZeroDivisionError as e: 
+            # TODO to exit L161 loop w/ num_hpos=0 one may have L166 and then L171!
+            ppkts_with_zero_hpos.append(ppkt_id)
             #print(f"No HPOs for {ppkt["id"]}.")
-
+  
 missing_in_ic_dict_unique = set(missing_in_ic_dict)
-print(f"\nNumber of HPOs without IC-value is {len(missing_in_ic_dict_unique)}.") # 191
-print(f"Number of ppkts with zero observed HPOs is {len(ppkts_with_zero_hpos)}.\n") # 141
-breakpoint()
+ppkts_with_missing_hpos = set(ppkts_with_missing_hpos)
+print(f"\nNumber of (unique) HPOs without IC-value is {len(missing_in_ic_dict_unique)}.") # 65
+print(f"Number of ppkts with zero observed HPOs is {len(ppkts_with_zero_hpos)}.") # 141
+print(f"Number of ppkts where some HPOs are missing at least 1 IC value is {len(ppkts_with_missing_hpos)}.\n") # 172
+
 ppkt_ic_df = pd.DataFrame.from_dict(ppkt_ic, orient='index', columns=['avg(IC)'])
 ppkt_ic_df['Diagnosed'] = 0
 
 still_missing = []
-
+debug_counter = 0
 for ppkt in ppkts:
+   # debug_counter += 1
+   # if debug_counter % 500 == 0:
+   #    breakpoint()
    if any(ppkt[1]["is_correct"]):
-      ppkt_label = ppkt[0][0:-14]
+      ppkt_label = ppkt[0].replace('_en-prompt.txt','')
+      if ppkt_label in ppkts_with_zero_hpos:
+         continue
       try:
          ppkt_ic_df.loc[ppkt_label,'Diagnosed'] = 1 
          # somehow this code generates new entries in df. From a code perspective it's bad and
-         # should be changed, but before, why? Is there some error? TODO
+         # should be changed TODO
       except :
          if ppkt_label in ppkts_with_zero_hpos:
             continue
          else:
             still_missing.append(ppkt_label)
 
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# See https://github.com/monarch-initiative/phenopacket-store/issues/157
+label_manual_removal = ["PMID_27764983_Family_1_individual__J", 
+                        "PMID_35991565_Family_I__3"]
+ppkt_ic_df = ppkt_ic_df.drop(label_manual_removal)
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# ppkt_ic_df['Diagnosed'].value_counts()
+# Diagnosed
+# 0.0    4182
+# 1.0    2347
+# IMBALANCED! Maybe SMOTE or similar? Respectively 
+# 0.0    64 %
+# 1.0    36 %
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#ppkt_ic_df.plot(x='avg(IC)', y='Diagnosed', style=['ob','rx'])
+# Dumbly copy paste from
+# https://towardsdatascience.com/building-a-logistic-regression-in-python-step-by-step-becd4d56c9c8 [1/10/24]
+
+# cols=['euribor3m', 'job_blue-collar', 'job_housemaid', 'marital_unknown', 'education_illiterate', 
+#       'month_apr', 'month_aug', 'month_dec', 'month_jul', 'month_jun', 'month_mar', 
+#       'month_may', 'month_nov', 'month_oct', "poutcome_failure", "poutcome_success"] 
+# X=os_data_X[cols]
+# y=os_data_y['y']logit_model=sm.Logit(y,X)
+# result=logit_model.fit()
+# print(result.summary2())
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(ppkt_ic_df[['avg(IC)']], ppkt_ic_df['Diagnosed'], test_size=0.3, random_state=0)
+logreg = LogisticRegression()
+logreg.fit(X_train, y_train)
+y_pred = logreg.predict(X_test)
+print('Accuracy of logistic regression classifier on test set: {:.2f}'.format(logreg.score(X_test, y_test)))
+confusion_matrix = confusion_matrix(y_test, y_pred)
+print(confusion_matrix)
+class_report = classification_report(y_test, y_pred)
+print(class_report)
+# Not much better than always saying 0, as of now.
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Analysis of found vs not-found
