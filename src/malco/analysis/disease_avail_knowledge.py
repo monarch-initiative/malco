@@ -1,4 +1,3 @@
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """This script looks for correlations between the ability of an LLM to 
 diagnose the correct disease and certain parameters.
 
@@ -47,6 +46,12 @@ hpoa_unique = hpoa_df.groupby("database_id").date.min()
 
 # import df of results
 model = str(sys.argv[1])
+try:
+   make_time_plot = str(sys.argv[2])=="plot"
+except IndexError:
+   make_time_plot = False
+   print("\nYou can pass \"plot\" as a second CLI argument and this will generate nice plots!")
+
 ranking_results_filename = f"out_openAI_models/multimodel/{model}/full_df_results.tsv"
 rank_results_df = pd.read_csv(
         ranking_results_filename, sep="\t" 
@@ -60,18 +65,17 @@ rank_results_df = pd.read_csv(
 # Go through results data and make set of found vs not found diseases.
 found_diseases = []
 not_found_diseases = []
-rank_date_dict = {} # Maybe dict is not a super good idea
+rank_date_dict = {} 
 ppkts = rank_results_df.groupby("label")[["term", "correct_term", "is_correct", "rank"]] 
 for ppkt in ppkts:
-    # is there a true? ppkt is tuple ("filename", dataframe) --> ppkt[1] is a dataframe 
+   # ppkt is tuple ("filename", dataframe) --> ppkt[1] is a dataframe 
    disease = ppkt[1].iloc[0]['correct_term']
 
    if any(ppkt[1]["is_correct"]):
       found_diseases.append(disease)
       index_of_match = ppkt[1]["is_correct"].to_list().index(True)
       try:
-         #inverse_rank = 1/ppkt[1].iloc[index_of_match]["rank"] # np.float64
-         rank = ppkt[1].iloc[index_of_match]["rank"] # np.float64
+         rank = ppkt[1].iloc[index_of_match]["rank"] # inverse rank does not work well
          rank_date_dict[ppkt[0]] = [rank.item(), 
                                     hpoa_unique.loc[ppkt[1].iloc[0]["correct_term"]]]
       except (ValueError, KeyError) as e:
@@ -79,12 +83,13 @@ for ppkt in ppkts:
 
    else: 
       not_found_diseases.append(disease)
-      continue # only use diseases that have been found
       try:
-         rank_date_dict[ppkt[0]] = [None, # only use diseases that have been found
+         rank_date_dict[ppkt[0]] = [None,
                                     hpoa_unique.loc[ppkt[1].iloc[0]["correct_term"]]]
       except (ValueError, KeyError) as e:
-         print(f"Error {e} for {ppkt[0]}, disease {ppkt[1].iloc[0]['correct_term']}.")
+         pass
+         #TODO collect the below somewhere
+         #print(f"Error {e} for {ppkt[0]}, disease {ppkt[1].iloc[0]['correct_term']}.")
          
 # gpt-4o output, reasonable enough to throw out 62 cases ~1%. 3 OMIMs to check and 3 nan
 # len(rank_date_dict) --> 6625
@@ -93,42 +98,66 @@ for ppkt in ppkts:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Do linear regression of box plot of ppkts' rank vs time
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-#plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=365))
 dates = []
 ranks = []
+
 for key, data in rank_date_dict.items():
-    #rank, date_str = zip(*data_list)  # Unpack
-    # necessary to convert to date object?
-    #dates = convert_str_to_dates(dates_str)  # Not handled in example
-    #plt.plot(date_str, rank, label=key)
-    dates.append(dt.datetime.strptime(data[1], '%Y-%m-%d').date())
-    ranks.append(data[0])
-
-#plt.legend()
-#plt.plot(dates, ranks, 'xr')
-#plt.gcf().autofmt_xdate()
-#plt.show()
-
+   dates.append(dt.datetime.strptime(data[1], '%Y-%m-%d').date())
+   ranks.append(data[0])
+   
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Correlation? Not evident from the following:
 years_only = []
 for i in range(len(dates)): 
    years_only.append(dates[i].year)
 
-# sns.boxplot(x=years_only,y=ranks)
-# plt.xlabel("Year of HPOA annotation")
-# plt.ylabel("Rank")
-# plt.title("LLM performance uncorrelated with date of discovery")
-#plt.show()
-
-#years_range = np.array([i for i in range(2009,2025)]) # bins
-#year_indices = np.digitize(years_only,years_range)
+if make_time_plot:
+   sns.boxplot(x=years_only, y=ranks)
+   plt.xlabel("Year of HPOA annotation")
+   plt.ylabel("Rank")
+   plt.title("LLM performance uncorrelated with date of discovery")
+   plt.show()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Statistical test, simplest idea: chi2 of contingency table with:
 # y<=2009 and y>2009 clmns and found vs not-found counts, one count per ppkt
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cont_table = [[0, 0], [0, 0]] # contains counts
+# ___| < 2010 | > 2010 |
+#  f |        |        | (found)
+# nf |        |        | (not found)
+for i, d in enumerate(years_only):
+   if d < 2010:
+      if ranks[i] == None:
+         cont_table[0][1] += 1
+      else:
+         cont_table[0][0] += 1
+   else:
+      if ranks[i] == None:
+         cont_table[1][1] += 1
+      else:
+         cont_table[1][0] += 1
+
+# ___| y<2010 | y>=2010|
+#  f |  1295  |  1204  | (found)
+# nf |  1064  |  3062  | (not found)
+
+# H0: no correlation between clmn 1 and 2
+from scipy.stats import chi2_contingency
+res = chi2_contingency(cont_table) #res.statistic = chi2?
+# Chi2ContingencyResult(statistic=np.float64(458.8912809317326), pvalue=np.float64(8.37853926348694e-102), dof=1, expected_freq=array([[ 889.83260377, 1609.16739623],
+#       [1469.16739623, 2656.83260377]]))
+
+contingency_table = pd.DataFrame(cont_table, index=['found', 'not_found'], 
+                                 columns=['before2010', 'after2010'])
+row_totals = [ cont_table[0][0] + cont_table[0][1],
+               cont_table[1][0] + cont_table[1][1] ]
+column_totals = [ cont_table[0][0] + cont_table[1][0],
+                  cont_table[0][1] + cont_table[1][1] ]
+N = row_totals[0] + row_totals[1]
+
+
+
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
