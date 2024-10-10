@@ -47,9 +47,9 @@ hpoa_unique = hpoa_df.groupby("database_id").date.min()
 # import df of results
 model = str(sys.argv[1])
 try:
-   make_time_plot = str(sys.argv[2])=="plot"
+   make_plots = str(sys.argv[2])=="plot"
 except IndexError:
-   make_time_plot = False
+   make_plots = False
    print("\nYou can pass \"plot\" as a second CLI argument and this will generate nice plots!")
 
 ranking_results_filename = f"out_openAI_models/multimodel/{model}/full_df_results.tsv"
@@ -96,7 +96,7 @@ for ppkt in ppkts:
 # len(ppkts) --> 6687
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Do linear regression of box plot of ppkts' rank vs time
+# Look for correlation in box plot of ppkts' rank vs time
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 dates = []
 ranks = []
@@ -111,11 +111,12 @@ years_only = []
 for i in range(len(dates)): 
    years_only.append(dates[i].year)
 
-if make_time_plot:
+if make_plots:
    sns.boxplot(x=years_only, y=ranks)
    plt.xlabel("Year of HPOA annotation")
    plt.ylabel("Rank")
    plt.title("LLM performance uncorrelated with date of discovery")
+   #TODO change show to save
    plt.show()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -147,18 +148,6 @@ from scipy.stats import chi2_contingency
 res = chi2_contingency(cont_table) #res.statistic = chi2?
 # Chi2ContingencyResult(statistic=np.float64(458.8912809317326), pvalue=np.float64(8.37853926348694e-102), dof=1, expected_freq=array([[ 889.83260377, 1609.16739623],
 #       [1469.16739623, 2656.83260377]]))
-
-contingency_table = pd.DataFrame(cont_table, index=['found', 'not_found'], 
-                                 columns=['before2010', 'after2010'])
-row_totals = [ cont_table[0][0] + cont_table[0][1],
-               cont_table[1][0] + cont_table[1][1] ]
-column_totals = [ cont_table[0][0] + cont_table[1][0],
-                  cont_table[0][1] + cont_table[1][1] ]
-N = row_totals[0] + row_totals[1]
-
-
-
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # IC: For each phenpacket, list observed HPOs and compute average IC. Is it correlated with 
@@ -252,13 +241,46 @@ ppkt_ic_df = ppkt_ic_df.drop(label_manual_removal)
 # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 # ppkt_ic_df['Diagnosed'].value_counts()
 # Diagnosed
-# 0.0    4182
-# 1.0    2347
-# IMBALANCED! Maybe SMOTE or similar? Respectively 
-# 0.0    64 %
-# 1.0    36 %
+# 0.0    4182   64 %
+# 1.0    2347   36%
 
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# T-test: unlikely that the two samples are such due to sample bias.
+# Likely, there is a correlation between average IC and whether the case is being solved.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+from scipy.stats import kstest
+kstest(ppkt_ic_df['avg(IC)'],'norm')
+# KS test statistic 0.95, p-value=0, not normal.
+from scipy.stats import shapiro
+stat, p = shapiro(ppkt_ic_df['avg(IC)'])
+# p = e-45 --> not normal
+# N = 6227, seems OK to perform a parametric test. Even if non-normal, t-test is OK.
+# Not necessary to use non-parametric U-test (Mann-Whitney), mostly thanks to Central Limit Theorem
+from scipy.stats import ttest_ind
+found_ic = list(ppkt_ic_df.loc[ppkt_ic_df['Diagnosed']>0, 'avg(IC)'])
+not_found_ic = list(ppkt_ic_df.loc[ppkt_ic_df['Diagnosed']<1, 'avg(IC)'])
+tresult = ttest_ind(found_ic, not_found_ic, equal_var=False)
+fsum = [np.mean(found_ic),
+        np.std(found_ic),
+        np.mean(not_found_ic),
+        np.std(not_found_ic),
+      ] 
+if make_plots:
+   plt.hist(found_ic, bins=25, color='c', edgecolor='k', alpha=0.5)
+   plt.hist(not_found_ic, bins=25, color='r', edgecolor='k', alpha=0.5)
+   plt.xlabel("Average Information Content")
+   plt.ylabel("Counts")
+   plt.legend(['Successful Diagnosis', 'Unsuccessful Diagnosis'])
+   #TODO change show to save
+   plt.show()
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Machine Learning: can we build a logit to classify into two?
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ML(1): let's try with IC
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# For unbalanced datasets: Maybe SMOTE or similar?
 #ppkt_ic_df.plot(x='avg(IC)', y='Diagnosed', style=['ob','rx'])
 # Dumbly copy paste from
 # https://towardsdatascience.com/building-a-logistic-regression-in-python-step-by-step-becd4d56c9c8 [1/10/24]
@@ -275,17 +297,42 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 
-X_train, X_test, y_train, y_test = train_test_split(ppkt_ic_df[['avg(IC)']], ppkt_ic_df['Diagnosed'], test_size=0.3, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(ppkt_ic_df[['avg(IC)']], ppkt_ic_df['Diagnosed'], test_size=0.2, random_state=0)
 logreg = LogisticRegression()
 logreg.fit(X_train, y_train)
 y_pred = logreg.predict(X_test)
 print('Accuracy of logistic regression classifier on test set: {:.2f}'.format(logreg.score(X_test, y_test)))
-confusion_matrix = confusion_matrix(y_test, y_pred)
-print(confusion_matrix)
+cm1d = confusion_matrix(y_test, y_pred)
+print(cm1d)
 class_report = classification_report(y_test, y_pred)
 print(class_report)
 # Not much better than always saying 0, as of now.
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ML(2): let's try with IC AND time (SVM with gausskernel a possible alternative?)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Features: year, IC. Label 0/1 f/nf --> Later, to improve, maybe use 1/rank, nf=0
+# rank_date_dict { 'pubmedid' + '_en-prompt.txt': [rank, '2012-05-11'],...}
+# ppkt_ic_df has row names with 'pubmedid'
+# for entry in ppkt_ic_df if rowname in rank_date_dict.keys() get that .values() index[1] and parse first 4 entries (year is 4 digits)
+date_df = pd.DataFrame.from_dict(rank_date_dict, orient='index', columns=['rank', 'date'])
+date_df.drop(columns='rank', inplace=True)
+date_df['date'] = date_df['date'].str[0:4]
+new_index = np.array([i[0:-14].rstrip("_") for i in date_df.index.to_list()])
+date_df.set_index(new_index, inplace=True)
+ic_date_df = date_df.join(ppkt_ic_df, how='inner')
+
+X_train, X_test, y_train, y_test = train_test_split(ic_date_df[['avg(IC)','date']], ic_date_df['Diagnosed'], test_size=0.2, random_state=0)
+logreg = LogisticRegression()
+logreg.fit(X_train, y_train)
+y_pred = logreg.predict(X_test)
+print('\nAccuracy of 2 PARAMETER logistic regression classifier on test set: {:.2f}'.format(logreg.score(X_test, y_test)))
+cm2d = confusion_matrix(y_test, y_pred)
+print(cm2d)
+class_report = classification_report(y_test, y_pred)
+print(class_report)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Analysis of found vs not-found
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -342,6 +389,4 @@ res_to_clean.columns=["found","date"]
 res_to_clean['date'] = pd.to_datetime(res_to_clean.date).values.astype(np.int64)
 final_avg = pd.DataFrame(pd.to_datetime(res_to_clean.groupby('found').mean()['date']))
 print(final_avg)
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 2 dimensional logistic regression or SVM with gausskernel?
