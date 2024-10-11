@@ -99,11 +99,18 @@ for ppkt in ppkts:
 # Look for correlation in box plot of ppkts' rank vs time
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 dates = []
+dates_wo_none = []
 ranks = []
-
+ranks_wo_none = []
 for key, data in rank_date_dict.items():
-   dates.append(dt.datetime.strptime(data[1], '%Y-%m-%d').date())
-   ranks.append(data[0])
+   r = data[0]
+   d = dt.datetime.strptime(data[1], '%Y-%m-%d').date()
+   dates.append(d)
+   ranks.append(r)
+   if r is not None:
+      dates_wo_none.append(d)
+      ranks_wo_none.append(r)
+   
    
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Correlation? Not evident from the following:
@@ -111,8 +118,12 @@ years_only = []
 for i in range(len(dates)): 
    years_only.append(dates[i].year)
 
+years_only_wo_none = []
+for i in range(len(dates_wo_none)): 
+   years_only_wo_none.append(dates[i].year)
+
 if make_plots:
-   sns.boxplot(x=years_only, y=ranks)
+   sns.boxplot(x=years_only_wo_none, y=ranks_wo_none)
    plt.xlabel("Year of HPOA annotation")
    plt.ylabel("Rank")
    plt.title("LLM performance uncorrelated with date of discovery")
@@ -124,9 +135,7 @@ if make_plots:
 # y<=2009 and y>2009 clmns and found vs not-found counts, one count per ppkt
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 cont_table = [[0, 0], [0, 0]] # contains counts
-# ___| < 2010 | > 2010 |
-#  f |        |        | (found)
-# nf |        |        | (not found)
+
 for i, d in enumerate(years_only):
    if d < 2010:
       if ranks[i] == None:
@@ -267,8 +276,8 @@ fsum = [np.mean(found_ic),
         np.std(not_found_ic),
       ] 
 if make_plots:
-   plt.hist(found_ic, bins=25, color='c', edgecolor='k', alpha=0.5)
-   plt.hist(not_found_ic, bins=25, color='r', edgecolor='k', alpha=0.5)
+   plt.hist(found_ic, bins=25, color='c', edgecolor='k', alpha=0.5, density=True)
+   plt.hist(not_found_ic, bins=25, color='r', edgecolor='k', alpha=0.5, density=True)
    plt.xlabel("Average Information Content")
    plt.ylabel("Counts")
    plt.legend(['Successful Diagnosis', 'Unsuccessful Diagnosis'])
